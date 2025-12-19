@@ -18,6 +18,13 @@ import {
   FirstAid,
   Confetti as ConfettiIcon,
   Sparkle,
+  SignOut,
+  CreditCard,
+  Plus,
+  Pencil,
+  Trash,
+  X,
+  ArrowLeft,
 } from 'phosphor-react';
 
 // Category configuration
@@ -106,6 +113,15 @@ function App() {
     total: 0,
     transactions: [],
   });
+
+  // Profile data
+  const [cards, setCards] = useState(() => {
+    const saved = localStorage.getItem('outgo_cards');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [categories, setCategories] = useState(CATEGORIES);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [newCard, setNewCard] = useState({ nickname: '', lastFour: '' });
 
   // Update window size for confetti
   useEffect(() => {
@@ -207,6 +223,202 @@ function App() {
     setFormData({ ...formData, date: date.toISOString() });
     setWizardStep(5);
   };
+
+  const handleAddCard = () => {
+    if (newCard.nickname && newCard.lastFour.length === 4) {
+      const updatedCards = [...cards, { ...newCard, id: Date.now().toString() }];
+      setCards(updatedCards);
+      localStorage.setItem('outgo_cards', JSON.stringify(updatedCards));
+      setNewCard({ nickname: '', lastFour: '' });
+      setShowAddCard(false);
+    }
+  };
+
+  const handleDeleteCard = (id) => {
+    const updatedCards = cards.filter((card) => card.id !== id);
+    setCards(updatedCards);
+    localStorage.setItem('outgo_cards', JSON.stringify(updatedCards));
+  };
+
+  // =============================================
+  // RENDER: Profile View
+  // =============================================
+  if (currentView === 'profile') {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-[#E8D1A7] p-4"
+      >
+        <div className="w-full max-w-md mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setCurrentView('home')}
+              className="p-2 text-[#442D1C]"
+            >
+              <ArrowLeft size={24} weight="bold" />
+            </motion.button>
+            <h1 className="text-[#442D1C] text-2xl font-bold">Profile</h1>
+            <div className="w-10" />
+          </div>
+
+          {/* Account Section */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-3xl p-6 mb-4 shadow-md"
+          >
+            <h2 className="text-[#442D1C] text-lg font-bold mb-4">Account</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[#442D1C] font-medium">Guest User</p>
+                <p className="text-[#84592B] text-sm">Using LocalStorage</p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#743014] text-white rounded-xl text-sm font-semibold"
+              >
+                <SignOut size={18} />
+                Logout
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* Payment Methods Section */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-3xl p-6 mb-4 shadow-md"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#442D1C] text-lg font-bold">Payment Methods</h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowAddCard(!showAddCard)}
+                className="p-2 bg-[#743014] text-white rounded-full"
+              >
+                {showAddCard ? <X size={20} /> : <Plus size={20} />}
+              </motion.button>
+            </div>
+
+            {/* Add Card Form */}
+            <AnimatePresence>
+              {showAddCard && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="mb-4 overflow-hidden"
+                >
+                  <div className="border-2 border-[#84592B] rounded-xl p-4">
+                    <input
+                      type="text"
+                      placeholder="Card Nickname (e.g., Chase Sapphire)"
+                      value={newCard.nickname}
+                      onChange={(e) =>
+                        setNewCard({ ...newCard, nickname: e.target.value })
+                      }
+                      className="w-full mb-3 px-3 py-2 border border-[#84592B] rounded-lg text-[#442D1C] outline-none focus:ring-2 focus:ring-[#743014]"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last 4 Digits"
+                      maxLength={4}
+                      value={newCard.lastFour}
+                      onChange={(e) =>
+                        setNewCard({ ...newCard, lastFour: e.target.value.replace(/\D/g, '') })
+                      }
+                      className="w-full mb-3 px-3 py-2 border border-[#84592B] rounded-lg text-[#442D1C] outline-none focus:ring-2 focus:ring-[#743014]"
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleAddCard}
+                      className="w-full py-2 bg-[#743014] text-white rounded-lg font-semibold"
+                    >
+                      Add Card
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Cards List */}
+            <div className="space-y-3">
+              {cards.length === 0 ? (
+                <p className="text-[#84592B] text-sm text-center py-4">
+                  No cards added yet
+                </p>
+              ) : (
+                cards.map((card, index) => (
+                  <motion.div
+                    key={card.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex items-center justify-between p-3 border-2 border-[#84592B] rounded-xl"
+                  >
+                    <div className="flex items-center gap-3">
+                      <CreditCard size={24} className="text-[#743014]" />
+                      <div>
+                        <p className="text-[#442D1C] font-medium">{card.nickname}</p>
+                        <p className="text-[#84592B] text-sm">•••• {card.lastFour}</p>
+                      </div>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDeleteCard(card.id)}
+                      className="p-2 text-[#743014] hover:bg-[#743014]/10 rounded-lg"
+                    >
+                      <Trash size={20} />
+                    </motion.button>
+                  </motion.div>
+                ))
+              )}
+            </div>
+          </motion.div>
+
+          {/* Categories Section */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-3xl p-6 shadow-md"
+          >
+            <h2 className="text-[#442D1C] text-lg font-bold mb-4">Categories</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <div
+                    key={cat.name}
+                    className="flex flex-col items-center gap-2 p-3 border-2 border-[#84592B] rounded-xl"
+                  >
+                    <Icon size={28} className="text-[#743014]" />
+                    <span className="text-xs text-[#442D1C] font-medium text-center">
+                      {cat.name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-[#84592B] text-xs text-center mt-4">
+              Category customization coming soon!
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+    );
+  }
 
   // =============================================
   // RENDER: Analytics View
@@ -376,7 +588,7 @@ function App() {
               exit="exit"
               className="flex flex-col items-center justify-center min-h-[60vh]"
             >
-              {/* Big Circle Button with Pulse Animation */}
+              {/* Start Tracking Button */}
               <motion.button
                 onClick={handleStartTracking}
                 whileHover={{ scale: 1.05 }}
@@ -427,6 +639,7 @@ function App() {
                 <motion.button
                   whileHover={{ scale: 1.1, y: -5 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => setCurrentView('profile')}
                   className="flex flex-col items-center gap-2 text-[#442D1C] hover:text-[#743014] transition"
                 >
                   <User size={32} weight="duotone" />
@@ -454,22 +667,42 @@ function App() {
               >
                 How much?
               </motion.h2>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#84592B] text-3xl">
-                  $
-                </span>
-                <motion.input
-                  type="number"
-                  autoFocus
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, amount: e.target.value })
-                  }
-                  whileFocus={{ scale: 1.02 }}
-                  className="w-full pl-12 pr-4 py-4 text-4xl font-bold text-[#442D1C] border-2 border-[#84592B] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#743014] transition-all"
-                  placeholder="0.00"
-                  step="0.01"
-                />
+
+              {/* Styled Input Container */}
+              <div className="flex items-center justify-center mb-6">
+                <div
+                  className="w-[210px] h-[50px] flex items-center justify-center rounded-[30px] overflow-hidden cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(to bottom, #E8D1A7, #f5e6cc)',
+                    boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.075)',
+                  }}
+                >
+                  <div className="relative w-[200px] h-[40px]">
+                    <span
+                      className="absolute left-[15px] top-1/2 -translate-y-1/2 text-[#442D1C] font-medium pointer-events-none"
+                      style={{ fontSize: '13.4px' }}
+                    >
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      autoFocus
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amount: e.target.value })
+                      }
+                      className="w-full h-full border-none outline-none bg-white rounded-[30px] text-[#442D1C] font-medium"
+                      style={{
+                        caretColor: '#743014',
+                        paddingLeft: '28px',
+                        letterSpacing: '0.8px',
+                        fontSize: '13.4px',
+                      }}
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                  </div>
+                </div>
               </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
