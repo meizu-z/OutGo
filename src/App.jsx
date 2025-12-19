@@ -25,6 +25,26 @@ import {
   Trash,
   X,
   ArrowLeft,
+  ShoppingCart,
+  Hamburger,
+  AirplaneTilt,
+  Book,
+  GameController,
+  Heart,
+  House,
+  Car,
+  Pizza,
+  Barbell,
+  Dog,
+  Gift,
+  Briefcase,
+  Palette,
+  Baby,
+  Pill,
+  Scissors,
+  Wrench,
+  Leaf,
+  Tag,
 } from 'phosphor-react';
 
 // Category configuration
@@ -35,6 +55,35 @@ const CATEGORIES = [
   { name: 'Shopping', icon: Tote },
   { name: 'Health', icon: FirstAid },
   { name: 'Entertainment', icon: ConfettiIcon },
+];
+
+// Icon picker options for category customization
+const CATEGORY_ICONS = [
+  { name: 'Coffee', component: Coffee },
+  { name: 'Train', component: Train },
+  { name: 'Lightning', component: Lightning },
+  { name: 'ShoppingCart', component: ShoppingCart },
+  { name: 'FirstAid', component: FirstAid },
+  { name: 'Confetti', component: ConfettiIcon },
+  { name: 'Hamburger', component: Hamburger },
+  { name: 'AirplaneTilt', component: AirplaneTilt },
+  { name: 'Book', component: Book },
+  { name: 'GameController', component: GameController },
+  { name: 'Heart', component: Heart },
+  { name: 'House', component: House },
+  { name: 'Car', component: Car },
+  { name: 'Pizza', component: Pizza },
+  { name: 'Barbell', component: Barbell },
+  { name: 'Dog', component: Dog },
+  { name: 'Gift', component: Gift },
+  { name: 'Briefcase', component: Briefcase },
+  { name: 'Palette', component: Palette },
+  { name: 'Baby', component: Baby },
+  { name: 'Pill', component: Pill },
+  { name: 'Scissors', component: Scissors },
+  { name: 'Wrench', component: Wrench },
+  { name: 'Leaf', component: Leaf },
+  { name: 'Tag', component: Tag },
 ];
 
 // Animation variants
@@ -103,6 +152,8 @@ function App() {
     amount: '',
     category: '',
     paymentType: '',
+    cardId: '',
+    cardNickname: '',
     date: new Date().toISOString(),
     description: '',
   });
@@ -119,9 +170,32 @@ function App() {
     const saved = localStorage.getItem('outgo_cards');
     return saved ? JSON.parse(saved) : [];
   });
-  const [categories, setCategories] = useState(CATEGORIES);
+  const [categories, setCategories] = useState(() => {
+    const saved = localStorage.getItem('outgo_categories');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // If corrupted, fall back to defaults
+      }
+    }
+
+    // First-time initialization: convert CATEGORIES to new format
+    const defaults = CATEGORIES.map((cat, i) => ({
+      id: `default-${i}`,
+      name: cat.name,
+      iconName: cat.icon.name || 'Coffee', // Fallback if icon name not available
+      isDefault: true,
+      createdAt: new Date().toISOString(),
+    }));
+    localStorage.setItem('outgo_categories', JSON.stringify(defaults));
+    return defaults;
+  });
   const [showAddCard, setShowAddCard] = useState(false);
   const [newCard, setNewCard] = useState({ nickname: '', lastFour: '' });
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const [newCategory, setNewCategory] = useState({ name: '', iconName: 'Tag' });
 
   // Update window size for confetti
   useEffect(() => {
@@ -162,6 +236,28 @@ function App() {
       total,
       transactions: filtered,
     });
+  };
+
+  const calculateCategoryTotals = (transactions) => {
+    // Group transactions by category
+    const totals = {};
+    let grandTotal = 0;
+
+    transactions.forEach((t) => {
+      const amount = parseFloat(t.amount);
+      totals[t.category] = (totals[t.category] || 0) + amount;
+      grandTotal += amount;
+    });
+
+    // Convert to array with percentages
+    return Object.entries(totals)
+      .map(([category, amount]) => ({
+        category,
+        amount,
+        percentage: grandTotal > 0 ? (amount / grandTotal) * 100 : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount) // Sort by amount (highest first)
+      .filter((item) => item.amount > 0); // Remove $0 categories
   };
 
   const handleStartTracking = () => {
@@ -238,6 +334,48 @@ function App() {
     const updatedCards = cards.filter((card) => card.id !== id);
     setCards(updatedCards);
     localStorage.setItem('outgo_cards', JSON.stringify(updatedCards));
+  };
+
+  const handleAddCategory = () => {
+    if (!newCategory.name.trim()) return;
+
+    const category = {
+      id: Date.now().toString(),
+      name: newCategory.name.trim(),
+      iconName: newCategory.iconName,
+      isDefault: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = [...categories, category];
+    setCategories(updated);
+    localStorage.setItem('outgo_categories', JSON.stringify(updated));
+    setNewCategory({ name: '', iconName: 'Tag' });
+    setShowAddCategory(false);
+  };
+
+  const handleDeleteCategory = (id) => {
+    // Check if category has transactions
+    const transactions = getTransactions();
+    const category = categories.find((c) => c.id === id);
+    if (!category) return;
+
+    const usageCount = transactions.filter((t) => t.category === category.name).length;
+
+    if (usageCount > 0) {
+      alert(`Cannot delete: ${usageCount} transaction(s) use this category`);
+      return;
+    }
+
+    // Prevent deleting default categories
+    if (category.isDefault) {
+      alert('Cannot delete default categories');
+      return;
+    }
+
+    const updated = categories.filter((c) => c.id !== id);
+    setCategories(updated);
+    localStorage.setItem('outgo_categories', JSON.stringify(updated));
   };
 
   // =============================================
@@ -394,28 +532,153 @@ function App() {
             transition={{ delay: 0.3 }}
             className="bg-white rounded-3xl p-6 shadow-md"
           >
-            <h2 className="text-[#442D1C] text-lg font-bold mb-4">Categories</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#442D1C] text-lg font-bold">Categories</h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowAddCategory(!showAddCategory)}
+                className="p-2 bg-[#743014] text-white rounded-full"
+              >
+                {showAddCategory ? <X size={20} /> : <Plus size={20} />}
+              </motion.button>
+            </div>
+
+            {/* Add Category Form */}
+            <AnimatePresence>
+              {showAddCategory && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="mb-4 overflow-hidden"
+                >
+                  <div className="border-2 border-[#84592B] rounded-xl p-4">
+                    <input
+                      type="text"
+                      placeholder="Category Name (e.g., Groceries)"
+                      value={newCategory.name}
+                      onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                      className="w-full mb-3 px-3 py-2 border border-[#84592B] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#743014]"
+                    />
+
+                    {/* Icon Selector Button */}
+                    <button
+                      onClick={() => setShowIconPicker(true)}
+                      className="w-full mb-3 p-3 border-2 border-[#84592B] rounded-xl flex items-center justify-between hover:border-[#743014] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        {(() => {
+                          const CurrentIcon = CATEGORY_ICONS.find((ic) => ic.name === newCategory.iconName)?.component || Tag;
+                          return <CurrentIcon size={24} className="text-[#743014]" />;
+                        })()}
+                        <span className="text-[#442D1C]">Select Icon</span>
+                      </div>
+                      <ArrowRight size={20} className="text-[#84592B]" />
+                    </button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleAddCategory}
+                      className="w-full py-2 bg-[#743014] text-white rounded-lg font-semibold"
+                    >
+                      Add Category
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Categories Grid */}
             <div className="grid grid-cols-3 gap-3">
-              {categories.map((cat) => {
-                const Icon = cat.icon;
+              {categories.map((cat, index) => {
+                const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
+
                 return (
-                  <div
-                    key={cat.name}
-                    className="flex flex-col items-center gap-2 p-3 border-2 border-[#84592B] rounded-xl"
+                  <motion.div
+                    key={cat.id}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="relative flex flex-col items-center gap-2 p-3 border-2 border-[#84592B] rounded-xl"
                   >
-                    <Icon size={28} className="text-[#743014]" />
+                    <IconComponent size={28} className="text-[#743014]" />
                     <span className="text-xs text-[#442D1C] font-medium text-center">
                       {cat.name}
                     </span>
-                  </div>
+
+                    {/* Delete button (only for non-default categories) */}
+                    {!cat.isDefault && (
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDeleteCategory(cat.id)}
+                        className="absolute -top-2 -right-2 p-1 bg-[#743014] text-white rounded-full shadow-md"
+                      >
+                        <X size={12} />
+                      </motion.button>
+                    )}
+                  </motion.div>
                 );
               })}
             </div>
-            <p className="text-[#84592B] text-xs text-center mt-4">
-              Category customization coming soon!
-            </p>
           </motion.div>
         </div>
+
+        {/* Icon Picker Modal */}
+        <AnimatePresence>
+          {showIconPicker && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+              onClick={() => setShowIconPicker(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-3xl p-6 max-w-md w-full"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-[#442D1C] text-xl font-bold">Choose Icon</h3>
+                  <button onClick={() => setShowIconPicker(false)}>
+                    <X size={24} className="text-[#442D1C]" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto">
+                  {CATEGORY_ICONS.map((iconObj) => {
+                    const Icon = iconObj.component;
+                    const isSelected = newCategory.iconName === iconObj.name;
+
+                    return (
+                      <motion.button
+                        key={iconObj.name}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setNewCategory({ ...newCategory, iconName: iconObj.name });
+                          setShowIconPicker(false);
+                        }}
+                        className={`aspect-square p-3 rounded-xl border-2 flex items-center justify-center ${
+                          isSelected
+                            ? 'border-[#743014] bg-[#743014]/10'
+                            : 'border-[#84592B] hover:border-[#743014]'
+                        }`}
+                      >
+                        <Icon size={28} className={isSelected ? 'text-[#743014]' : 'text-[#84592B]'} />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     );
   }
@@ -518,9 +781,11 @@ function App() {
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 <AnimatePresence>
                   {analyticsData.transactions.map((transaction, index) => {
-                    const CategoryIcon = CATEGORIES.find(
-                      (c) => c.name === transaction.category
-                    )?.icon || Coffee;
+                    const category = categories.find((c) => c.name === transaction.category);
+                    const CategoryIcon = category
+                      ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
+                      : null;
+                    const FinalIcon = CategoryIcon || Tag;
 
                     return (
                       <motion.div
@@ -531,7 +796,7 @@ function App() {
                         className="flex items-center justify-between text-[#E8D1A7]"
                       >
                         <div className="flex items-center gap-3">
-                          <CategoryIcon size={20} className="text-[#84592B]" />
+                          <FinalIcon size={20} className="text-[#84592B]" />
                           <span className="text-sm">
                             {transaction.description || transaction.category}
                           </span>
@@ -546,6 +811,78 @@ function App() {
               </div>
             </div>
           </motion.div>
+
+          {/* Category Spending Breakdown */}
+          {analyticsData.transactions.length > 0 && (() => {
+            const categoryBreakdown = calculateCategoryTotals(analyticsData.transactions);
+
+            return categoryBreakdown.length > 0 ? (
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="bg-[#442D1C] rounded-3xl p-6 mb-6"
+              >
+                <h3 className="text-[#84592B] text-sm mb-4">Breakdown by Category</h3>
+
+                <div className="space-y-4">
+                  {categoryBreakdown.map((item, index) => {
+                    const category = categories.find((c) => c.name === item.category);
+                    const IconComponent = category
+                      ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
+                      : null;
+                    const FinalIcon = IconComponent || Tag;
+
+                    return (
+                      <motion.div
+                        key={item.category}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center gap-3"
+                      >
+                        {/* Icon */}
+                        <FinalIcon size={20} className="text-[#84592B] flex-shrink-0" />
+
+                        {/* Category Name */}
+                        <span className="text-[#E8D1A7] text-sm w-24 flex-shrink-0">
+                          {item.category}
+                        </span>
+
+                        {/* Amount */}
+                        <span className="text-[#E8D1A7] text-sm font-semibold w-16 text-right flex-shrink-0">
+                          ${item.amount.toFixed(2)}
+                        </span>
+
+                        {/* Progress Bar */}
+                        <div className="flex-1 h-2 bg-[#84592B]/20 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${item.percentage}%` }}
+                            transition={{ duration: 0.5, delay: index * 0.05 + 0.2 }}
+                            className="h-full bg-[#E8D1A7] rounded-full"
+                          />
+                        </div>
+
+                        {/* Percentage */}
+                        <span className="text-[#84592B] text-xs w-10 text-right flex-shrink-0">
+                          {item.percentage.toFixed(0)}%
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Total */}
+                <div className="mt-6 pt-4 border-t border-[#84592B]/30 flex items-center justify-between">
+                  <span className="text-[#84592B] text-sm font-semibold">Total</span>
+                  <span className="text-[#E8D1A7] text-lg font-bold">
+                    ${analyticsData.total.toFixed(2)}
+                  </span>
+                </div>
+              </motion.div>
+            ) : null;
+          })()}
 
           {/* Back to Home Button */}
           <motion.button
@@ -730,11 +1067,11 @@ function App() {
                 What category?
               </h2>
               <div className="grid grid-cols-3 gap-4">
-                {CATEGORIES.map((cat, index) => {
-                  const Icon = cat.icon;
+                {categories.map((cat, index) => {
+                  const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
                   return (
                     <motion.button
-                      key={cat.name}
+                      key={cat.id}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.05 }}
@@ -746,7 +1083,7 @@ function App() {
                       }}
                       className="aspect-square flex flex-col items-center justify-center gap-2 border-2 border-[#84592B] rounded-2xl hover:bg-[#743014] hover:text-white hover:border-[#743014] transition group"
                     >
-                      <Icon
+                      <IconComponent
                         size={32}
                         className="group-hover:text-white text-[#743014]"
                       />
