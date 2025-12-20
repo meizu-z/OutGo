@@ -1260,12 +1260,6 @@ function App() {
       return;
     }
 
-    // Prevent deleting default categories
-    if (category.isDefault) {
-      alert('Cannot delete default categories');
-      return;
-    }
-
     const updated = categories.filter((c) => c.id !== id);
     setCategories(updated);
     localStorage.setItem('outgo_categories', JSON.stringify(updated));
@@ -2017,17 +2011,15 @@ function App() {
                         {cat.name}
                       </span>
 
-                      {!cat.isDefault && (
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => handleDeleteCategory(cat.id)}
-                          className="absolute -top-2 -right-2 p-1 rounded-full"
-                          style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
-                        >
-                          <X size={12} />
-                        </motion.button>
-                      )}
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => handleDeleteCategory(cat.id)}
+                        className="absolute -top-2 -right-2 p-1 rounded-full"
+                        style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+                      >
+                        <X size={12} />
+                      </motion.button>
                     </motion.div>
                   );
                 })}
@@ -2130,569 +2122,6 @@ function App() {
           </button>
         </div>
       </div>
-    );
-  }
-
-          {/* Payment Methods Section */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl p-5 mb-4"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#555555] text-lg font-bold">Payment Methods</h2>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowAddCard(!showAddCard)}
-                className="p-2 bg-[#997c5c] text-white rounded-full"
-              >
-                {showAddCard ? <X size={20} /> : <Plus size={20} />}
-              </motion.button>
-            </div>
-
-            {/* Add Card Form */}
-            <AnimatePresence>
-              {showAddCard && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="mb-4 overflow-hidden"
-                >
-                  <div className="border border-[#aaa17a] rounded-xl p-4">
-                    <input
-                      type="text"
-                      placeholder="Card Nickname (e.g., Chase Sapphire)"
-                      value={newCard.nickname}
-                      onChange={(e) =>
-                        setNewCard({ ...newCard, nickname: e.target.value })
-                      }
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg text-[#555555] outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Last 4 Digits"
-                      maxLength={4}
-                      value={newCard.lastFour}
-                      onChange={(e) =>
-                        setNewCard({ ...newCard, lastFour: e.target.value.replace(/\D/g, '') })
-                      }
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg text-[#555555] outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    />
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleAddCard}
-                      className="w-full py-2 bg-[#997c5c] text-white rounded-lg font-semibold"
-                    >
-                      Add Card
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Cards List */}
-            <div className="space-y-3">
-              {cards.length === 0 ? (
-                <p className="text-[#aaa17a] text-sm text-center py-4">
-                  No cards added yet
-                </p>
-              ) : (
-                cards.map((card, index) => (
-                  <motion.div
-                    key={card.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center justify-between p-3 border border-[#aaa17a] rounded-xl"
-                  >
-                    <div className="flex items-center gap-3">
-                      <CreditCard size={24} className="text-[#997c5c]" />
-                      <div>
-                        <p className="text-[#555555] font-medium">{card.nickname}</p>
-                        <p className="text-[#aaa17a] text-sm">•••• {card.lastFour}</p>
-                      </div>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleDeleteCard(card.id)}
-                      className="p-2 text-[#997c5c] hover:bg-[#997c5c]/10 rounded-lg"
-                    >
-                      <Trash size={20} />
-                    </motion.button>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          </motion.div>
-
-          {/* Spending Limit Section */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-xl p-5 mb-4"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#555555] text-lg font-bold">Spending Limit</h2>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setShowEditLimit(!showEditLimit);
-                  if (!showEditLimit) {
-                    setTempLimit({ amount: spendingLimit.amount.toString(), period: spendingLimit.period });
-                  }
-                }}
-                className="p-2 bg-[#997c5c] text-white rounded-full"
-              >
-                {showEditLimit ? <X size={20} /> : <Pencil size={20} />}
-              </motion.button>
-            </div>
-
-            {/* Current Limit Display */}
-            {!showEditLimit && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="border border-[#aaa17a] rounded-xl p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[#aaa17a] text-sm">Current Limit</span>
-                  <span className="text-[#555555] text-2xl font-bold">${spendingLimit.amount}</span>
-                </div>
-                <p className="text-[#aaa17a] text-xs">
-                  Per {spendingLimit.period === 'week' ? 'Week' : 'Month'}
-                </p>
-                {(() => {
-                  const status = calculateSpendingStatus();
-                  return (
-                    <div className="mt-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-[#aaa17a]">
-                          ${status.spent.toFixed(2)} spent
-                        </span>
-                        <span className="text-xs text-[#aaa17a]">
-                          {status.percentage.toFixed(0)}%
-                        </span>
-                      </div>
-                      <div className="w-full h-2 bg-[#aaa17a]/20 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${status.percentage}%` }}
-                          transition={{ duration: 0.5 }}
-                          className={`h-full rounded-full ${
-                            status.isOverLimit ? 'bg-red-500' : 'bg-[#997c5c]'
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
-              </motion.div>
-            )}
-
-            {/* Edit Limit Form */}
-            <AnimatePresence>
-              {showEditLimit && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="border border-[#aaa17a] rounded-xl p-4">
-                    <input
-                      type="number"
-                      placeholder="Amount (e.g., 1000)"
-                      value={tempLimit.amount}
-                      onChange={(e) => setTempLimit({ ...tempLimit, amount: e.target.value })}
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg text-[#555555] outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    />
-
-                    {/* Period Selector */}
-                    <div className="flex gap-2 mb-3">
-                      <button
-                        onClick={() => setTempLimit({ ...tempLimit, period: 'week' })}
-                        className={`flex-1 py-2 rounded-lg border transition ${
-                          tempLimit.period === 'week'
-                            ? 'border-[#997c5c] bg-[#997c5c] text-white'
-                            : 'border-[#aaa17a] text-[#555555] hover:border-[#997c5c]'
-                        }`}
-                      >
-                        Weekly
-                      </button>
-                      <button
-                        onClick={() => setTempLimit({ ...tempLimit, period: 'month' })}
-                        className={`flex-1 py-2 rounded-lg border transition ${
-                          tempLimit.period === 'month'
-                            ? 'border-[#997c5c] bg-[#997c5c] text-white'
-                            : 'border-[#aaa17a] text-[#555555] hover:border-[#997c5c]'
-                        }`}
-                      >
-                        Monthly
-                      </button>
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleUpdateSpendingLimit}
-                      className="w-full py-2 bg-[#997c5c] text-white rounded-lg font-semibold"
-                    >
-                      Update Limit
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Budget Goals Section */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="bg-white rounded-xl p-5 mb-4"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#555555] text-lg font-bold">Budget Goals</h2>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowAddBudget(!showAddBudget)}
-                className="p-2 bg-[#997c5c] text-white rounded-full"
-              >
-                {showAddBudget ? <X size={20} /> : <Plus size={20} />}
-              </motion.button>
-            </div>
-
-            {/* Add Budget Form */}
-            <AnimatePresence>
-              {showAddBudget && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="mb-4 overflow-hidden"
-                >
-                  <div className="border border-[#aaa17a] rounded-xl p-4">
-                    {/* Category Selector */}
-                    <select
-                      value={newBudget.categoryName}
-                      onChange={(e) =>
-                        setNewBudget({ ...newBudget, categoryName: e.target.value })
-                      }
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg text-[#555555] outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.name}>
-                          {cat.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* Amount Input */}
-                    <input
-                      type="number"
-                      placeholder="Budget Amount (e.g., 100)"
-                      value={newBudget.amount}
-                      onChange={(e) => setNewBudget({ ...newBudget, amount: e.target.value })}
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg text-[#555555] outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    />
-
-                    {/* Period Selector */}
-                    <div className="flex gap-2 mb-3">
-                      <button
-                        onClick={() => setNewBudget({ ...newBudget, period: 'week' })}
-                        className={`flex-1 py-2 rounded-lg border transition ${
-                          newBudget.period === 'week'
-                            ? 'border-[#997c5c] bg-[#997c5c] text-white'
-                            : 'border-[#aaa17a] text-[#555555]'
-                        }`}
-                      >
-                        Weekly
-                      </button>
-                      <button
-                        onClick={() => setNewBudget({ ...newBudget, period: 'month' })}
-                        className={`flex-1 py-2 rounded-lg border transition ${
-                          newBudget.period === 'month'
-                            ? 'border-[#997c5c] bg-[#997c5c] text-white'
-                            : 'border-[#aaa17a] text-[#555555]'
-                        }`}
-                      >
-                        Monthly
-                      </button>
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleAddBudget}
-                      className="w-full py-2 bg-[#997c5c] text-white rounded-lg font-semibold"
-                    >
-                      Add Budget Goal
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Budget List */}
-            <div className="space-y-3">
-              {budgets.length === 0 ? (
-                <p className="text-[#aaa17a] text-sm text-center py-4">
-                  No budget goals set yet
-                </p>
-              ) : (
-                budgets.map((budget, index) => {
-                  const status = calculateBudgetStatus(
-                    budget.categoryName,
-                    budget.amount,
-                    budget.period
-                  );
-                  const category = categories.find((c) => c.name === budget.categoryName);
-                  const IconComponent = category
-                    ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
-                    : Tag;
-
-                  // Color based on status
-                  const statusColors = {
-                    safe: { bg: 'bg-green-500', text: 'text-green-600' },
-                    warning: { bg: 'bg-amber-500', text: 'text-amber-600' },
-                    danger: { bg: 'bg-red-500', text: 'text-red-600' },
-                  };
-
-                  return (
-                    <motion.div
-                      key={`${budget.categoryName}-${budget.period}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="border border-[#aaa17a] rounded-xl p-4"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <IconComponent size={20} className="text-[#997c5c]" />
-                          <span className="text-[#555555] font-semibold">
-                            {budget.categoryName}
-                          </span>
-                          <span className="text-xs text-[#aaa17a]">
-                            ({budget.period === 'week' ? 'Weekly' : 'Monthly'})
-                          </span>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleDeleteBudget(budget.categoryName, budget.period)}
-                          className="p-1 text-[#997c5c] hover:bg-[#997c5c]/10 rounded"
-                        >
-                          <Trash size={16} />
-                        </motion.button>
-                      </div>
-
-                      <div className="flex items-center justify-between mb-1 text-sm">
-                        <span className={statusColors[status.status].text}>
-                          ${status.spent.toFixed(2)} / ${budget.amount}
-                        </span>
-                        <span className={statusColors[status.status].text + ' font-semibold'}>
-                          {status.percentage.toFixed(0)}%
-                        </span>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${Math.min(status.percentage, 100)}%` }}
-                          transition={{ duration: 0.5 }}
-                          className={`h-full rounded-full ${statusColors[status.status].bg}`}
-                        />
-                      </div>
-
-                      {/* Status Messages */}
-                      {status.isOverBudget && (
-                        <p className="text-xs text-red-600 mt-2 font-medium">
-                          Over budget by ${Math.abs(status.remaining).toFixed(2)}!
-                        </p>
-                      )}
-                      {status.status === 'warning' && !status.isOverBudget && (
-                        <p className="text-xs text-amber-600 mt-2 font-medium">
-                          ${status.remaining.toFixed(2)} remaining - watch your spending!
-                        </p>
-                      )}
-                      {status.status === 'safe' && (
-                        <p className="text-xs text-green-600 mt-2 font-medium">
-                          ${status.remaining.toFixed(2)} remaining - looking good!
-                        </p>
-                      )}
-                    </motion.div>
-                  );
-                })
-              )}
-            </div>
-          </motion.div>
-
-          {/* Categories Section */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-xl p-5"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#555555] text-lg font-bold">Categories</h2>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setShowAddCategory(!showAddCategory)}
-                className="p-2 bg-[#997c5c] text-white rounded-full"
-              >
-                {showAddCategory ? <X size={20} /> : <Plus size={20} />}
-              </motion.button>
-            </div>
-
-            {/* Add Category Form */}
-            <AnimatePresence>
-              {showAddCategory && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="mb-4 overflow-hidden"
-                >
-                  <div className="border border-[#aaa17a] rounded-xl p-4">
-                    <input
-                      type="text"
-                      placeholder="Category Name (e.g., Groceries)"
-                      value={newCategory.name}
-                      onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                      className="w-full mb-3 px-3 py-2 border border-[#aaa17a] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#997c5c]"
-                    />
-
-                    {/* Icon Selector Button */}
-                    <button
-                      onClick={() => setShowIconPicker(true)}
-                      className="w-full mb-3 p-3 border border-[#aaa17a] rounded-xl flex items-center justify-between hover:border-[#997c5c] transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        {(() => {
-                          const CurrentIcon = CATEGORY_ICONS.find((ic) => ic.name === newCategory.iconName)?.component || Tag;
-                          return <CurrentIcon size={24} className="text-[#997c5c]" />;
-                        })()}
-                        <span className="text-[#555555]">Select Icon</span>
-                      </div>
-                      <ArrowRight size={20} className="text-[#aaa17a]" />
-                    </button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleAddCategory}
-                      className="w-full py-2 bg-[#997c5c] text-white rounded-lg font-semibold"
-                    >
-                      Add Category
-                    </motion.button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Categories Grid */}
-            <div className="grid grid-cols-3 gap-3">
-              {categories.map((cat, index) => {
-                const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
-
-                return (
-                  <motion.div
-                    key={cat.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="relative flex flex-col items-center gap-2 p-3 border border-[#aaa17a] rounded-xl"
-                  >
-                    <IconComponent size={28} className="text-[#997c5c]" />
-                    <span className="text-xs text-[#555555] font-medium text-center">
-                      {cat.name}
-                    </span>
-
-                    {/* Delete button (only for non-default categories) */}
-                    {!cat.isDefault && (
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDeleteCategory(cat.id)}
-                        className="absolute -top-2 -right-2 p-1 bg-[#997c5c] text-white rounded-full"
-                      >
-                        <X size={12} />
-                      </motion.button>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Icon Picker Modal */}
-        <AnimatePresence>
-          {showIconPicker && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-              onClick={() => setShowIconPicker(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-xl p-5 max-w-md w-full"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-[#555555] text-xl font-bold">Choose Icon</h3>
-                  <button onClick={() => setShowIconPicker(false)}>
-                    <X size={24} className="text-[#555555]" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto">
-                  {CATEGORY_ICONS.map((iconObj) => {
-                    const Icon = iconObj.component;
-                    const isSelected = newCategory.iconName === iconObj.name;
-
-                    return (
-                      <motion.button
-                        key={iconObj.name}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => {
-                          setNewCategory({ ...newCategory, iconName: iconObj.name });
-                          setShowIconPicker(false);
-                        }}
-                        className={`aspect-square p-3 rounded-xl border flex items-center justify-center ${
-                          isSelected
-                            ? 'border-[#997c5c] bg-[#997c5c]/10'
-                            : 'border-[#aaa17a] hover:border-[#997c5c]'
-                        }`}
-                      >
-                        <Icon size={28} className={isSelected ? 'text-[#997c5c]' : 'text-[#aaa17a]'} />
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
     );
   }
 
@@ -3042,7 +2471,7 @@ function App() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-1000"
-      style={{ backgroundColor: themeColors.cream }}
+      style={{ backgroundColor: '#E8D1A7' }}
     >
       {showConfetti && (
         <Confetti
@@ -3050,7 +2479,7 @@ function App() {
           height={windowSize.height}
           recycle={false}
           numberOfPieces={500}
-          colors={['#c5b98f', '#555555', '#aaa17a', '#997c5c']}
+          colors={['#E8D1A7', '#442D1C', '#84592B', '#743014']}
         />
       )}
 
@@ -3136,70 +2565,74 @@ function App() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="bg-white rounded-xl p-8"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
                 <motion.h2
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="text-[#555555] text-2xl font-bold mb-6 text-center"
+                  className="text-xl font-semibold mb-8 text-center"
+                  style={{ color: '#442D1C' }}
                 >
                   How much?
                 </motion.h2>
 
-                {/* Styled Input Container */}
-                <div className="flex items-center justify-center mb-6">
-                  <div
-                    className="w-[280px] h-[80px] flex items-center justify-center rounded-[40px] overflow-hidden cursor-pointer"
-                    style={{
-                      background: 'linear-gradient(to bottom, #c5b98f, #f5e6cc)',
-                      boxShadow: '2px 2px 10px rgba(0, 0, 0, 0.075)',
-                    }}
-                  >
-                    <div className="relative w-[268px] h-[68px]">
-                      <span
-                        className="absolute left-[24px] top-1/2 -translate-y-1/2 text-[#555555] font-bold pointer-events-none"
-                        style={{ fontSize: '2.5rem' }}
-                      >
-                        $
-                      </span>
-                      <input
-                        type="number"
-                        autoFocus
-                        value={formData.amount}
-                        onChange={(e) =>
-                          setFormData({ ...formData, amount: e.target.value })
-                        }
-                        className="w-full h-full border-none outline-none bg-white rounded-[30px] text-[#555555] font-bold text-center"
-                        style={{
-                          caretColor: '#997c5c',
-                          paddingLeft: '48px',
-                          letterSpacing: '1px',
-                          fontSize: '2.5rem',
-                        }}
-                        placeholder="0.00"
-                        step="0.01"
-                      />
-                    </div>
+                {/* Clean Number Input */}
+                <div className="flex items-center justify-center mb-8">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold" style={{ color: '#442D1C' }}>$</span>
+                    <input
+                      type="number"
+                      autoFocus
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData({ ...formData, amount: e.target.value })
+                      }
+                      className="text-6xl font-bold text-center border-none outline-none bg-transparent"
+                      style={{
+                        color: '#442D1C',
+                        caretColor: '#84592B',
+                        width: '200px',
+                      }}
+                      placeholder="0"
+                      step="0.01"
+                    />
                   </div>
                 </div>
+
+                {/* Next Button */}
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => formData.amount && setWizardStep(2)}
                   disabled={!formData.amount}
-                  className="mt-6 mx-auto px-8 py-2.5 bg-[#997c5c] text-white rounded-lg text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-[#784c33] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="mt-8 mx-auto p-2.5 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#E8D1A7',
+                  }}
                 >
-                  Next <ArrowRight size={16} weight="regular" />
+                  <motion.div
+                    className="p-2.5 rounded-full transition-all"
+                    whileHover={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}
+                    style={{ color: '#E8D1A7' }}
+                  >
+                    <ArrowRight size={24} weight="bold" />
+                  </motion.div>
                 </motion.button>
               </motion.div>
 
               {/* Back Button - Below Card */}
               <button
                 onClick={handleGoBack}
-                className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
               >
-                <ArrowLeft size={14} weight="regular" />
+                <ArrowLeft size={16} weight="regular" />
                 <span>Go Back</span>
               </button>
             </>
@@ -3214,32 +2647,48 @@ function App() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="bg-white rounded-xl p-8"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
-                <div className="mb-6">
-                  <span className="text-tiny text-[#555555]/60">Step 2 of 5</span>
-                  <h2 className="text-h1 text-[#555555] mt-1">What category?</h2>
+                <div className="mb-8">
+                  <span className="text-sm font-medium" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>Step 2 of 5</span>
+                  <h2 className="text-2xl font-bold mt-2" style={{ color: '#442D1C' }}>What category?</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {categories.map((cat, index) => {
                     const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
                     return (
-                      <button
+                      <motion.button
                         key={cat.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
                         onClick={() => {
                           setFormData({ ...formData, category: cat.name });
                           setWizardStep(3);
                         }}
-                        className="p-4 bg-[#c5b98f] border border-[#aaa17a]/20 rounded-lg hover:border-[#784c33] hover:bg-[#aaa17a]/20 transition-all flex items-center gap-3"
+                        className="p-4 rounded-2xl transition-all"
+                        style={{
+                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                          border: '2px solid transparent',
+                          cursor: 'pointer',
+                        }}
+                        whileHover={{
+                          backgroundColor: 'rgba(68, 45, 28, 0.15)',
+                          scale: 1.02,
+                        }}
+                        whileTap={{ scale: 0.98 }}
                       >
-                        <IconComponent
-                          size={24}
-                          className="text-[#555555]"
-                        />
-                        <span className="text-sm text-[#555555]">
-                          {cat.name}
-                        </span>
-                      </button>
+                        <div className="flex flex-col items-center gap-2">
+                          <IconComponent size={28} style={{ color: '#84592B' }} />
+                          <span className="text-sm font-medium" style={{ color: '#442D1C' }}>
+                            {cat.name}
+                          </span>
+                        </div>
+                      </motion.button>
                     );
                   })}
                 </div>
@@ -3248,9 +2697,10 @@ function App() {
               {/* Back Button - Below Card */}
               <button
                 onClick={handleGoBack}
-                className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
               >
-                <ArrowLeft size={14} weight="regular" />
+                <ArrowLeft size={16} weight="regular" />
                 <span>Go Back</span>
               </button>
             </>
@@ -3265,26 +2715,34 @@ function App() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="bg-white rounded-xl p-8"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
-                <h2 className="text-[#555555] text-2xl font-bold mb-6 text-center">
+                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
                   How did you pay?
                 </h2>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3">
                   {['Cash', 'Card', 'Wallet'].map((type, index) => (
                     <motion.button
                       key={type}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.03, x: 10 }}
+                      whileHover={{ scale: 1.03, x: 5 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         setFormData({ ...formData, paymentType: type });
-                        // If Card is selected, go to card selection step, otherwise skip to date
                         setWizardStep(type === 'Card' ? 4 : 5);
                       }}
-                      className="py-4 px-6 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#997c5c] hover:text-white hover:border-[#997c5c] transition"
+                      className="py-4 px-6 rounded-2xl font-semibold text-lg transition-all"
+                      style={{
+                        backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                        color: '#442D1C',
+                        border: '2px solid transparent',
+                      }}
                     >
                       {type}
                     </motion.button>
@@ -3295,9 +2753,10 @@ function App() {
               {/* Back Button - Below Card */}
               <button
                 onClick={handleGoBack}
-                className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
               >
-                <ArrowLeft size={14} weight="regular" />
+                <ArrowLeft size={16} weight="regular" />
                 <span>Go Back</span>
               </button>
             </>
@@ -3312,32 +2771,40 @@ function App() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="bg-white rounded-xl p-8"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
-                <h2 className="text-[#555555] text-2xl font-bold mb-6 text-center">
+                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
                   Which card?
                 </h2>
                 {cards.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-[#aaa17a] mb-4">No cards added yet</p>
+                    <p className="mb-4" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>No cards added yet</p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setCurrentView('profile')}
-                      className="px-6 py-2.5 bg-[#997c5c] text-white rounded-xl font-semibold"
+                      className="px-6 py-2.5 rounded-xl font-semibold"
+                      style={{
+                        backgroundColor: '#84592B',
+                        color: '#E8D1A7',
+                      }}
                     >
                       Add Card in Profile
                     </motion.button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3">
                     {cards.map((card, index) => (
                       <motion.button
                         key={card.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.03, x: 10 }}
+                        whileHover={{ scale: 1.02, x: 5 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           setFormData({
@@ -3347,10 +2814,14 @@ function App() {
                           });
                           setWizardStep(5);
                         }}
-                        className="py-4 px-6 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#997c5c] hover:text-white hover:border-[#997c5c] transition flex items-center justify-between"
+                        className="py-4 px-6 rounded-2xl font-semibold text-lg transition-all flex items-center justify-between"
+                        style={{
+                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                          color: '#442D1C',
+                        }}
                       >
                         <span>{card.nickname}</span>
-                        <span className="text-sm opacity-70">•••• {card.lastFour}</span>
+                        <span className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>•••• {card.lastFour}</span>
                       </motion.button>
                     ))}
                   </div>
@@ -3360,156 +2831,191 @@ function App() {
               {/* Back Button - Below Card */}
               <button
                 onClick={handleGoBack}
-                className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
               >
-              <ArrowLeft size={14} weight="regular" />
-              <span>Go Back</span>
-            </button>
+                <ArrowLeft size={16} weight="regular" />
+                <span>Go Back</span>
+              </button>
             </>
           )}
 
           {/* Step 5: Date Selection */}
           {wizardStep === 5 && (
             <>
-            <motion.div
-              key="step-5"
-              variants={slideVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white rounded-xl p-8"
-            >
-              <h2 className="text-[#555555] text-2xl font-bold mb-6 text-center">
-                When was this?
-              </h2>
-              <div className="flex gap-4 mb-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleSetDate('today')}
-                  className="flex-1 py-4 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#997c5c] hover:text-white hover:border-[#997c5c] transition"
-                >
-                  Today
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleSetDate('yesterday')}
-                  className="flex-1 py-4 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#997c5c] hover:text-white hover:border-[#997c5c] transition"
-                >
-                  Yesterday
-                </motion.button>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowCustomDate(!showCustomDate)}
-                className="w-full py-4 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#997c5c] hover:text-white hover:border-[#997c5c] transition flex items-center justify-center gap-2"
+              <motion.div
+                key="step-5"
+                variants={slideVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
-                <Calendar size={20} />
-                Pick Another Date
-              </motion.button>
-
-              {/* Custom Date Picker */}
-              <AnimatePresence>
-                {showCustomDate && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="mt-4 overflow-hidden"
+                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                  When was this?
+                </h2>
+                <div className="flex gap-3 mb-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleSetDate('today')}
+                    className="flex-1 py-4 rounded-2xl font-semibold transition-all"
+                    style={{
+                      backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                      color: '#442D1C',
+                    }}
                   >
-                    <input
-                      type="date"
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const selectedDate = new Date(e.target.value + 'T00:00:00');
-                          setFormData({ ...formData, date: selectedDate.toISOString() });
-                          setShowCustomDate(false);
-                          setWizardStep(6);
-                        }
-                      }}
-                      className="w-full px-4 py-2.5 border border-[#aaa17a] rounded-xl text-[#555555] focus:outline-none focus:ring-2 focus:ring-[#997c5c]"
-                      max={new Date().toISOString().split('T')[0]}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
+                    Today
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleSetDate('yesterday')}
+                    className="flex-1 py-4 rounded-2xl font-semibold transition-all"
+                    style={{
+                      backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                      color: '#442D1C',
+                    }}
+                  >
+                    Yesterday
+                  </motion.button>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowCustomDate(!showCustomDate)}
+                  className="w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                    color: '#442D1C',
+                  }}
+                >
+                  <Calendar size={20} />
+                  Pick Another Date
+                </motion.button>
 
-            {/* Back Button - Below Card */}
-            <button
-              onClick={handleGoBack}
-              className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
-            >
-              <ArrowLeft size={14} weight="regular" />
-              <span>Go Back</span>
-            </button>
+                {/* Custom Date Picker */}
+                <AnimatePresence>
+                  {showCustomDate && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="mt-4 overflow-hidden"
+                    >
+                      <input
+                        type="date"
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const selectedDate = new Date(e.target.value + 'T00:00:00');
+                            setFormData({ ...formData, date: selectedDate.toISOString() });
+                            setShowCustomDate(false);
+                            setWizardStep(6);
+                          }
+                        }}
+                        className="w-full px-4 py-2.5 border-none rounded-2xl focus:outline-none transition-all"
+                        style={{
+                          backgroundColor: 'rgba(68, 45, 28, 0.15)',
+                          color: '#442D1C',
+                        }}
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Back Button - Below Card */}
+              <button
+                onClick={handleGoBack}
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
+              >
+                <ArrowLeft size={16} weight="regular" />
+                <span>Go Back</span>
+              </button>
             </>
           )}
 
           {/* Step 6: Description & Save */}
           {wizardStep === 6 && (
             <>
-            <motion.div
-              key="step-6"
-              variants={slideVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white rounded-xl p-8"
-            >
-              <h2 className="text-[#555555] text-2xl font-bold mb-6 text-center">
-                What was this for?
-              </h2>
-              <motion.input
-                type="text"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                whileFocus={{ scale: 1.02 }}
-                className="w-full px-4 py-2.5 border border-[#aaa17a] rounded-xl text-[#555555] focus:outline-none focus:ring-2 focus:ring-[#997c5c] mb-6 transition-all"
-                placeholder="e.g., Morning coffee"
-              />
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSaveTransaction}
-                disabled={isSaving}
-                className="w-full bg-[#997c5c] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#555555] transition disabled:opacity-50 relative overflow-hidden"
+              <motion.div
+                key="step-6"
+                variants={slideVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
               >
-                {isSaving ? (
+                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                  What was this for?
+                </h2>
+                <motion.input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  whileFocus={{ scale: 1.02 }}
+                  className="w-full px-4 py-3 border-none rounded-2xl mb-8 focus:outline-none transition-all"
+                  style={{
+                    backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                    color: '#442D1C',
+                  }}
+                  placeholder="e.g., Morning coffee"
+                />
+                <motion.button
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleSaveTransaction}
+                  disabled={isSaving}
+                  className="mx-auto p-2.5 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#E8D1A7',
+                  }}
+                >
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex items-center justify-center gap-2"
+                    className="p-2.5 rounded-full transition-all"
+                    whileHover={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}
+                    style={{ color: '#E8D1A7' }}
                   >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                      className="w-5 h-5 border border-white border-t-transparent rounded-full"
-                    />
-                    Saving...
+                    {isSaving ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      >
+                        <Check size={24} weight="bold" />
+                      </motion.div>
+                    ) : (
+                      <Check size={24} weight="bold" />
+                    )}
                   </motion.div>
-                ) : (
-                  'SAVE TRANSACTION'
-                )}
-              </motion.button>
-            </motion.div>
+                </motion.button>
+              </motion.div>
 
-            {/* Back Button - Below Card */}
-            <button
-              onClick={handleGoBack}
-              className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full mt-4 flex items-center justify-center gap-1.5"
-            >
-              <ArrowLeft size={14} weight="regular" />
-              <span>Go Back</span>
-            </button>
+              {/* Back Button - Below Card */}
+              <button
+                onClick={handleGoBack}
+                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
+                style={{ color: '#E8D1A7' }}
+              >
+                <ArrowLeft size={16} weight="regular" />
+                <span>Go Back</span>
+              </button>
             </>
           )}
 
