@@ -2470,7 +2470,7 @@ function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-1000"
+      className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-1000"
       style={{ backgroundColor: '#E8D1A7' }}
     >
       {showConfetti && (
@@ -2483,7 +2483,7 @@ function App() {
         />
       )}
 
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md md:max-w-2xl lg:max-w-3xl">
         <AnimatePresence mode="wait">
           {/* Step 0: Resting State */}
           {wizardStep === 0 && (
@@ -2501,7 +2501,7 @@ function App() {
                 onClick={handleStartTracking}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="w-44 h-44 rounded-full flex items-center justify-center text-lg font-semibold transition-all mb-16"
+                className="w-44 h-44 md:w-52 md:h-52 lg:w-64 lg:h-64 rounded-full flex items-center justify-center text-lg md:text-xl font-semibold transition-all mb-16 md:mb-20"
                 style={{
                   backgroundColor: '#E8D1A7',
                   color: '#442D1C',
@@ -2565,7 +2565,7 @@ function App() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="rounded-3xl p-8"
+                className="rounded-3xl p-6 md:p-8 lg:p-10"
                 style={{
                   backgroundColor: '#E8D1A7',
                   boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
@@ -2575,7 +2575,7 @@ function App() {
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="text-xl font-semibold mb-8 text-center"
+                  className="text-xl md:text-2xl font-semibold mb-8 text-center"
                   style={{ color: '#442D1C' }}
                 >
                   How much?
@@ -2584,7 +2584,7 @@ function App() {
                 {/* Clean Number Input */}
                 <div className="flex items-center justify-center mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold" style={{ color: '#442D1C' }}>$</span>
+                    <span className="text-4xl md:text-5xl lg:text-6xl font-bold" style={{ color: '#442D1C' }}>$</span>
                     <input
                       type="number"
                       autoFocus
@@ -2592,7 +2592,7 @@ function App() {
                       onChange={(e) =>
                         setFormData({ ...formData, amount: e.target.value })
                       }
-                      className="text-6xl font-bold text-center border-none outline-none bg-transparent"
+                      className="text-5xl md:text-6xl lg:text-7xl font-bold text-center border-none outline-none bg-transparent"
                       style={{
                         color: '#442D1C',
                         caretColor: '#84592B',
@@ -2655,9 +2655,9 @@ function App() {
               >
                 <div className="mb-8">
                   <span className="text-sm font-medium" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>Step 2 of 5</span>
-                  <h2 className="text-2xl font-bold mt-2" style={{ color: '#442D1C' }}>What category?</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold mt-2" style={{ color: '#442D1C' }}>What category?</h2>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                   {categories.map((cat, index) => {
                     const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
                     return (
@@ -2721,10 +2721,10 @@ function App() {
                   boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
                   How did you pay?
                 </h2>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 md:flex-row">
                   {['Cash', 'Card', 'Wallet'].map((type, index) => (
                     <motion.button
                       key={type}
@@ -2777,7 +2777,7 @@ function App() {
                   boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
                   Which card?
                 </h2>
                 {cards.length === 0 ? (
@@ -2797,7 +2797,7 @@ function App() {
                     </motion.button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                     {cards.map((card, index) => (
                       <motion.button
                         key={card.id}
@@ -2855,10 +2855,10 @@ function App() {
                   boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
                   When was this?
                 </h2>
-                <div className="flex gap-3 mb-4">
+                <div className="flex flex-col md:flex-row gap-3 mb-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -2956,7 +2956,7 @@ function App() {
                   boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
                   What was this for?
                 </h2>
                 <motion.input
@@ -2966,7 +2966,7 @@ function App() {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   whileFocus={{ scale: 1.02 }}
-                  className="w-full px-4 py-3 border-none rounded-2xl mb-8 focus:outline-none transition-all"
+                  className="w-full px-4 md:px-6 py-3 md:py-4 border-none rounded-2xl mb-8 focus:outline-none transition-all text-lg md:text-xl"
                   style={{
                     backgroundColor: 'rgba(68, 45, 28, 0.08)',
                     color: '#442D1C',
