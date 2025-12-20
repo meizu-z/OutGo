@@ -2192,6 +2192,8 @@ function App() {
   // RENDER: Analytics View
   // =============================================
   if (currentView === 'analytics') {
+    console.log('Rendering analytics view');
+    const spendingStatus = calculateSpendingStatus();
     const periodLabels = {
       today: 'Today',
       week: 'This Week',
@@ -2537,7 +2539,9 @@ function App() {
                 className="flex gap-6"
               >
                 <button
+                  type="button"
                   onClick={() => {
+                    console.log('Analytics button clicked');
                     setCurrentView('analytics');
                     fetchAnalytics('today');
                   }}
@@ -2546,6 +2550,7 @@ function App() {
                   <ChartBar size={20} weight="regular" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setCurrentView('achievements');
                     setHasNewAchievements(false);
@@ -2558,6 +2563,7 @@ function App() {
                   )}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setCurrentView('profile')}
                   className="relative p-2 rounded-lg transition-colors text-[#555555] hover:text-[#784c33]"
                 >
