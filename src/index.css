@@ -14,6 +14,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #503f37;
+  color: #555555;
+  font-size: 0.938rem;
+  font-weight: 400;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -24,4 +28,84 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply px-6 py-2.5 rounded-lg text-white text-sm;
+    @apply transition-colors;
+    background-color: #997c5c;
+  }
+
+  .btn-primary:hover {
+    background-color: #784c33;
+  }
+
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg text-sm;
+    @apply transition-all;
+    border: 1px solid rgba(170, 161, 122, 0.4);
+    color: #555555;
+  }
+
+  .btn-ghost:hover {
+    border-color: #784c33;
+    background-color: rgba(120, 76, 51, 0.05);
+  }
+
+  .btn-text {
+    @apply text-sm transition-colors;
+    color: #555555;
+  }
+
+  .btn-text:hover {
+    color: #784c33;
+  }
+
+  .btn-icon {
+    @apply p-1.5 rounded transition-colors;
+    color: #555555;
+  }
+
+  .btn-icon:hover {
+    color: #784c33;
+    background-color: rgba(170, 161, 122, 0.1);
+  }
+
+  /* Card Styles */
+  .card {
+    @apply rounded-xl p-5;
+    background-color: #c5b98f;
+    border: 1px solid rgba(170, 161, 122, 0.2);
+  }
+
+  .card-dark {
+    @apply rounded-xl p-5;
+    background-color: #503f37;
+    border: 1px solid rgba(120, 76, 51, 0.2);
+  }
+
+  /* Input Styles */
+  .input {
+    @apply w-full px-3 py-2 rounded-md text-sm;
+    @apply outline-none transition-all;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(170, 161, 122, 0.3);
+    color: #555555;
+  }
+
+  .input::placeholder {
+    color: rgba(80, 63, 55, 0.5);
+  }
+
+  .input:focus {
+    border-color: #784c33;
+    background-color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* Section Divider */
+  .divider {
+    border-bottom: 1px solid rgba(170, 161, 122, 0.2);
+  }
 }
