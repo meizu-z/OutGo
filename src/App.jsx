@@ -1343,163 +1343,212 @@ function App() {
     };
 
     return (
-      <div className="min-h-screen bg-[#c5b98f] p-4">
-        <div className="w-full max-w-md mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => {
-                setCurrentView('home');
-                setHasNewAchievements(false);
-              }}
-              className="text-sm text-[#555555] hover:text-[#784c33] transition-colors flex items-center gap-1.5"
-            >
-              <ArrowLeft size={14} weight="regular" />
-              <span>Back</span>
-            </button>
-            <h1 className="text-[#555555] text-2xl font-bold">Achievements</h1>
-            <div className="w-10" />
-          </div>
+      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
+        {/* Espresso Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-6 pt-8 pb-16"
+          style={{ backgroundColor: '#442D1C' }}
+        >
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6" style={{ color: '#E8D1A7' }}>
+              Achievements
+            </h1>
 
-          {/* Stats Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="bg-white rounded-xl p-5 mb-4"
-          >
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-3xl font-bold text-[#997c5c]">{unlockedCount}</p>
-                <p className="text-xs text-[#aaa17a]">Unlocked</p>
+            {/* Stats Row */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
+                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{unlockedCount}</p>
+                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Unlocked</p>
               </div>
-              <div>
-                <p className="text-3xl font-bold text-[#997c5c]">{currentStreak}</p>
-                <p className="text-xs text-[#aaa17a]">Day Streak</p>
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
+                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{currentStreak}</p>
+                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Day Streak</p>
               </div>
-              <div>
-                <p className="text-3xl font-bold text-[#997c5c]">{completionPercentage}%</p>
-                <p className="text-xs text-[#aaa17a]">Complete</p>
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
+                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{completionPercentage}%</p>
+                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Complete</p>
               </div>
             </div>
-          </motion.div>
-
-          {/* Category Tabs */}
-          <div className="flex gap-2 mb-4 overflow-x-auto">
-            {['all', 'unlocked', 'locked', 'in progress'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setAchievementTab(tab)}
-                className={`px-4 py-2 rounded-full font-semibold whitespace-nowrap transition ${
-                  achievementTab === tab
-                    ? 'bg-[#997c5c] text-white'
-                    : 'bg-white text-[#555555] border border-[#aaa17a]'
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
           </div>
+        </motion.div>
 
-          {/* Achievements List */}
-          <div className="space-y-3">
-            {filteredAchievements.map((achievement, index) => {
-              const isUnlocked = achievements.unlockedBadges.some(
-                (b) => b.achievementId === achievement.id
-              );
-              const progress = achievements.progress[achievement.id];
-              const badge = achievements.unlockedBadges.find((b) => b.achievementId === achievement.id);
-              const isShowcased = badge?.showcased || false;
-              const AchievementIcon = getAchievementIcon(achievement.icon);
-
-              return (
-                <motion.div
-                  key={achievement.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={`bg-white rounded-xl p-4 border ${
-                    isUnlocked ? 'border-[#997c5c]' : 'border-[#aaa17a]/30'
-                  }`}
+        {/* Cream Floating Sheet */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="px-6 pt-6 pb-32 -mt-4"
+          style={{
+            backgroundColor: '#E8D1A7',
+            borderTopLeftRadius: '2rem',
+            borderTopRightRadius: '2rem',
+            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            minHeight: 'calc(100vh - 200px)',
+          }}
+        >
+          <div className="max-w-2xl mx-auto">
+            {/* Category Tabs */}
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {['all', 'unlocked', 'locked', 'in progress'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setAchievementTab(tab)}
+                  className="px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
+                  style={{
+                    backgroundColor: achievementTab === tab ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
+                    color: achievementTab === tab ? '#E8D1A7' : '#442D1C',
+                    boxShadow: achievementTab === tab ? '0 4px 15px rgba(68, 45, 28, 0.2)' : 'none',
+                  }}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Badge Icon */}
-                    <div
-                      className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        isUnlocked
-                          ? 'bg-gradient-to-br from-[#c5b98f] to-[#aaa17a]'
-                          : 'bg-gray-200'
-                      }`}
-                    >
-                      <AchievementIcon
-                        size={28}
-                        className={isUnlocked ? 'text-[#997c5c]' : 'text-gray-400'}
-                        weight={isUnlocked ? 'fill' : 'regular'}
-                      />
-                    </div>
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
+            </div>
 
-                    {/* Info */}
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3
-                          className={`font-bold ${
-                            isUnlocked ? 'text-[#555555]' : 'text-gray-500'
-                          }`}
-                        >
-                          {achievement.name}
-                        </h3>
-                        {isUnlocked && (
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => toggleShowcase(achievement.id)}
-                            className={`p-1 rounded-full ${
-                              isShowcased ? 'bg-[#997c5c]' : 'bg-gray-300'
-                            }`}
-                          >
-                            <Star
-                              size={16}
-                              className="text-white"
-                              weight={isShowcased ? 'fill' : 'regular'}
-                            />
-                          </motion.button>
-                        )}
+            {/* Achievements Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAchievements.map((achievement, index) => {
+                const isUnlocked = achievements.unlockedBadges.some(
+                  (b) => b.achievementId === achievement.id
+                );
+                const progress = achievements.progress[achievement.id];
+                const badge = achievements.unlockedBadges.find((b) => b.achievementId === achievement.id);
+                const isShowcased = badge?.showcased || false;
+                const AchievementIcon = getAchievementIcon(achievement.icon);
+
+                return (
+                  <motion.div
+                    key={achievement.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="rounded-3xl p-5 transition-all duration-200"
+                    style={{
+                      backgroundColor: isUnlocked ? '#f5e6cc' : '#ffffff',
+                      boxShadow: isUnlocked
+                        ? '0 8px 32px rgba(68, 45, 28, 0.12)'
+                        : '0 4px 20px rgba(68, 45, 28, 0.06)',
+                      border: isUnlocked ? '2px solid #84592B' : '2px solid transparent',
+                    }}
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Badge Icon */}
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+                        style={{
+                          backgroundColor: isUnlocked ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
+                        }}
+                      >
+                        <AchievementIcon
+                          size={28}
+                          style={{ color: isUnlocked ? '#E8D1A7' : 'rgba(68, 45, 28, 0.3)' }}
+                          weight={isUnlocked ? 'fill' : 'regular'}
+                        />
                       </div>
 
-                      <p className="text-xs text-[#aaa17a] mb-2">{achievement.description}</p>
-
-                      {/* Progress Bar (for locked/in-progress) */}
-                      {!isUnlocked && progress && (
-                        <div>
-                          <div className="flex items-center justify-between text-xs text-[#aaa17a] mb-1">
-                            <span>Progress</span>
-                            <span>
-                              {progress.current} / {progress.target}
-                            </span>
-                          </div>
-                          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{
-                                width: `${(progress.current / progress.target) * 100}%`,
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3
+                            className="font-bold text-sm truncate"
+                            style={{ color: isUnlocked ? '#442D1C' : 'rgba(68, 45, 28, 0.5)' }}
+                          >
+                            {achievement.name}
+                          </h3>
+                          {isUnlocked && (
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => toggleShowcase(achievement.id)}
+                              className="p-1.5 rounded-full ml-2 flex-shrink-0"
+                              style={{
+                                backgroundColor: isShowcased ? '#84592B' : 'rgba(68, 45, 28, 0.1)',
                               }}
-                              className="h-full bg-[#997c5c] rounded-full"
-                            />
-                          </div>
+                            >
+                              <Star
+                                size={14}
+                                style={{ color: isShowcased ? '#E8D1A7' : '#442D1C' }}
+                                weight={isShowcased ? 'fill' : 'regular'}
+                              />
+                            </motion.button>
+                          )}
                         </div>
-                      )}
 
-                      {/* Unlock Date */}
-                      {isUnlocked && badge && (
-                        <p className="text-xs text-green-600 font-medium">
-                          ✓ Unlocked {new Date(badge.unlockedAt).toLocaleDateString()}
+                        <p className="text-xs mb-3" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                          {achievement.description}
                         </p>
-                      )}
+
+                        {/* Progress Bar (for locked/in-progress) */}
+                        {!isUnlocked && progress && (
+                          <div>
+                            <div className="flex items-center justify-between text-xs mb-1" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                              <span>Progress</span>
+                              <span>{progress.current} / {progress.target}</span>
+                            </div>
+                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(progress.current / progress.target) * 100}%` }}
+                                className="h-full rounded-full"
+                                style={{ backgroundColor: '#84592B' }}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Unlock Date */}
+                        {isUnlocked && badge && (
+                          <p className="text-xs font-medium" style={{ color: '#84592B' }}>
+                            ✓ Unlocked {new Date(badge.unlockedAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
+        </motion.div>
+
+        {/* Floating Navigation */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
+          <button
+            onClick={() => {
+              setCurrentView('home');
+              setHasNewAchievements(false);
+            }}
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ color: '#E8D1A7' }}
+          >
+            <ArrowLeft size={24} weight="regular" />
+          </button>
+          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <button
+            onClick={() => {
+              setCurrentView('analytics');
+              fetchAnalytics('today');
+            }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <ChartBar size={24} weight="regular" />
+          </button>
+          <button
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+          >
+            <Trophy size={24} weight="regular" />
+          </button>
+          <button
+            onClick={() => setCurrentView('profile')}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <User size={24} weight="regular" />
+          </button>
         </div>
       </div>
     );
@@ -1509,121 +1558,580 @@ function App() {
   // RENDER: Profile View
   // =============================================
   if (currentView === 'profile') {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="min-h-screen bg-[#c5b98f] p-4"
-      >
-        <div className="w-full max-w-md mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <button
-              onClick={() => setCurrentView('home')}
-              className="text-sm text-[#555555] hover:text-[#784c33] transition-colors flex items-center gap-1.5"
-            >
-              <ArrowLeft size={14} weight="regular" />
-              <span>Back</span>
-            </button>
-            <h1 className="text-[#555555] text-2xl font-bold">Profile</h1>
-            <div className="w-10" />
-          </div>
+    const status = calculateSpendingStatus();
 
-          {/* Badge Showcase */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.05 }}
-            className="bg-gradient-to-br from-[#997c5c] to-[#555555] rounded-xl p-5 mb-4"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#c5b98f] text-lg font-bold">Badge Showcase</h2>
-              <span className="text-[#aaa17a] text-sm">
-                {achievements.unlockedBadges.length}/{ACHIEVEMENTS.length} Unlocked
-              </span>
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
+        {/* Espresso Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-6 pt-8 pb-16"
+          style={{ backgroundColor: '#442D1C' }}
+        >
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>
+              Profile
+            </h1>
+          </div>
+        </motion.div>
+
+        {/* Cream Floating Sheet */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="px-6 pt-6 pb-32 -mt-4"
+          style={{
+            backgroundColor: '#E8D1A7',
+            borderTopLeftRadius: '2rem',
+            borderTopRightRadius: '2rem',
+            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            minHeight: 'calc(100vh - 200px)',
+          }}
+        >
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Badge Showcase */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-3xl p-6"
+              style={{
+                backgroundColor: '#442D1C',
+                boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold" style={{ color: '#E8D1A7' }}>Badge Showcase</h2>
+                <span className="text-sm" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+                  {achievements.unlockedBadges.length}/{ACHIEVEMENTS.length}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {achievements.unlockedBadges
+                  .filter((badge) => badge.showcased)
+                  .slice(0, 3)
+                  .map((badge, index) => {
+                    const achievement = ACHIEVEMENTS.find((a) => a.id === badge.achievementId);
+                    if (!achievement) return null;
+
+                    const AchievementIcon = getAchievementIcon(achievement.icon);
+
+                    return (
+                      <motion.div
+                        key={badge.achievementId}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex flex-col items-center text-center"
+                      >
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2" style={{ backgroundColor: 'rgba(232, 209, 167, 0.15)' }}>
+                          <AchievementIcon size={32} style={{ color: '#E8D1A7' }} weight="fill" />
+                        </div>
+                        <span className="text-xs" style={{ color: '#E8D1A7' }}>
+                          {achievement.name}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+
+                {[
+                  ...Array(
+                    Math.max(
+                      0,
+                      3 - achievements.unlockedBadges.filter((b) => b.showcased).length
+                    )
+                  ),
+                ].map((_, i) => (
+                  <div key={`empty-${i}`} className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2 border-2 border-dashed" style={{ borderColor: 'rgba(232, 209, 167, 0.3)' }}>
+                      <Lock size={24} style={{ color: 'rgba(232, 209, 167, 0.4)' }} />
+                    </div>
+                    <span className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.4)' }}>Empty</span>
+                  </div>
+                ))}
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setCurrentView('achievements')}
+                className="w-full py-3 rounded-2xl font-medium transition-all"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  color: '#442D1C',
+                  boxShadow: '0 4px 15px rgba(232, 209, 167, 0.2)',
+                }}
+              >
+                View All Achievements
+              </motion.button>
+            </motion.div>
+
+            {/* Account Section */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="rounded-3xl p-6"
+              style={{
+                backgroundColor: '#f5e6cc',
+                boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+              }}
+            >
+              <h2 className="text-lg font-bold mb-4" style={{ color: '#442D1C' }}>Account</h2>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium" style={{ color: '#442D1C' }}>Guest User</p>
+                  <p className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>Using LocalStorage</p>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                  style={{
+                    backgroundColor: '#84592B',
+                    color: '#E8D1A7',
+                    boxShadow: '0 4px 15px rgba(132, 89, 43, 0.3)',
+                  }}
+                >
+                  <SignOut size={18} />
+                  Logout
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Payment Methods & Spending Limit - Two Column Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Payment Methods */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.25 }}
+                className="rounded-3xl p-6"
+                style={{
+                  backgroundColor: '#f5e6cc',
+                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Payment Methods</h2>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowAddCard(!showAddCard)}
+                    className="p-2.5 rounded-full transition-all"
+                    style={{
+                      backgroundColor: '#84592B',
+                      color: '#E8D1A7',
+                    }}
+                  >
+                    {showAddCard ? <X size={20} /> : <Plus size={20} />}
+                  </motion.button>
+                </div>
+
+                <AnimatePresence>
+                  {showAddCard && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="mb-4 overflow-hidden"
+                    >
+                      <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                        <input
+                          type="text"
+                          placeholder="Card Nickname"
+                          value={newCard.nickname}
+                          onChange={(e) => setNewCard({ ...newCard, nickname: e.target.value })}
+                          className="input w-full mb-3"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Last 4 Digits"
+                          maxLength={4}
+                          value={newCard.lastFour}
+                          onChange={(e) => setNewCard({ ...newCard, lastFour: e.target.value.replace(/\D/g, '') })}
+                          className="input w-full mb-3"
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleAddCard}
+                          className="btn-primary w-full"
+                        >
+                          Add Card
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="space-y-3">
+                  {cards.length === 0 ? (
+                    <p className="text-sm text-center py-4" style={{ color: 'rgba(68, 45, 28, 0.4)' }}>
+                      No cards yet
+                    </p>
+                  ) : (
+                    cards.map((card, index) => (
+                      <motion.div
+                        key={card.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex items-center justify-between p-3 rounded-xl"
+                        style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(132, 89, 43, 0.2)' }}>
+                            <CreditCard size={20} style={{ color: '#84592B' }} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: '#442D1C' }}>{card.nickname}</p>
+                            <p className="text-xs" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>•••• {card.lastFour}</p>
+                          </div>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleDeleteCard(card.id)}
+                          className="p-2 rounded-lg transition-colors"
+                          style={{ color: '#84592B' }}
+                        >
+                          <Trash size={18} />
+                        </motion.button>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Spending Limit */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="rounded-3xl p-6"
+                style={{
+                  backgroundColor: '#f5e6cc',
+                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Spending Limit</h2>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      setShowEditLimit(!showEditLimit);
+                      if (!showEditLimit) {
+                        setTempLimit({ amount: spendingLimit.amount.toString(), period: spendingLimit.period });
+                      }
+                    }}
+                    className="p-2.5 rounded-full transition-all"
+                    style={{
+                      backgroundColor: '#84592B',
+                      color: '#E8D1A7',
+                    }}
+                  >
+                    {showEditLimit ? <X size={20} /> : <Pencil size={20} />}
+                  </motion.button>
+                </div>
+
+                {!showEditLimit && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="p-4 rounded-2xl mb-4"
+                    style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
+                  >
+                    <div className="flex items-baseline justify-between mb-2">
+                      <span className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>Current Limit</span>
+                      <span className="text-2xl font-bold" style={{ color: '#442D1C' }}>${spendingLimit.amount}</span>
+                    </div>
+                    <p className="text-xs mb-4" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                      Per {spendingLimit.period === 'week' ? 'Week' : 'Month'}
+                    </p>
+                    <div>
+                      <div className="flex items-center justify-between mb-1 text-xs" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                        <span>${status.spent.toFixed(2)} spent</span>
+                        <span>{status.percentage.toFixed(0)}%</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${status.percentage}%` }}
+                          transition={{ duration: 0.5 }}
+                          className="h-full rounded-full"
+                          style={{
+                            backgroundColor: status.isOverLimit ? '#ef4444' : '#84592B',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <AnimatePresence>
+                  {showEditLimit && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-4 rounded-2xl" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                        <input
+                          type="number"
+                          placeholder="Amount"
+                          value={tempLimit.amount}
+                          onChange={(e) => setTempLimit({ ...tempLimit, amount: e.target.value })}
+                          className="input w-full mb-3"
+                        />
+                        <div className="flex gap-2 mb-3">
+                          <button
+                            onClick={() => setTempLimit({ ...tempLimit, period: 'week' })}
+                            className="flex-1 py-2.5 rounded-xl font-medium transition-all"
+                            style={{
+                              backgroundColor: tempLimit.period === 'week' ? '#84592B' : 'rgba(132, 89, 43, 0.1)',
+                              color: tempLimit.period === 'week' ? '#E8D1A7' : '#442D1C',
+                            }}
+                          >
+                            Weekly
+                          </button>
+                          <button
+                            onClick={() => setTempLimit({ ...tempLimit, period: 'month' })}
+                            className="flex-1 py-2.5 rounded-xl font-medium transition-all"
+                            style={{
+                              backgroundColor: tempLimit.period === 'month' ? '#84592B' : 'rgba(132, 89, 43, 0.1)',
+                              color: tempLimit.period === 'month' ? '#E8D1A7' : '#442D1C',
+                            }}
+                          >
+                            Monthly
+                          </button>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleUpdateSpendingLimit}
+                          className="btn-primary w-full"
+                        >
+                          Update Limit
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             </div>
 
-            {/* Showcased Badges Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              {achievements.unlockedBadges
-                .filter((badge) => badge.showcased)
-                .slice(0, 3)
-                .map((badge, index) => {
-                  const achievement = ACHIEVEMENTS.find((a) => a.id === badge.achievementId);
-                  if (!achievement) return null;
+            {/* Categories Section */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="rounded-3xl p-6"
+              style={{
+                backgroundColor: '#f5e6cc',
+                boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Categories</h2>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowAddCategory(!showAddCategory)}
+                  className="p-2.5 rounded-full transition-all"
+                  style={{
+                    backgroundColor: '#84592B',
+                    color: '#E8D1A7',
+                  }}
+                >
+                  {showAddCategory ? <X size={20} /> : <Plus size={20} />}
+                </motion.button>
+              </div>
 
-                  const AchievementIcon = getAchievementIcon(achievement.icon);
+              <AnimatePresence>
+                {showAddCategory && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="mb-4 overflow-hidden"
+                  >
+                    <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                      <input
+                        type="text"
+                        placeholder="Category Name"
+                        value={newCategory.name}
+                        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                        className="input w-full mb-3"
+                      />
+                      <button
+                        onClick={() => setShowIconPicker(true)}
+                        className="w-full mb-3 p-3 rounded-xl flex items-center justify-between transition-colors"
+                        style={{
+                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                          border: '2px solid transparent',
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          {(() => {
+                            const CurrentIcon = CATEGORY_ICONS.find((ic) => ic.name === newCategory.iconName)?.component || Tag;
+                            return <CurrentIcon size={24} style={{ color: '#84592B' }} />;
+                          })()}
+                          <span style={{ color: '#442D1C' }}>Select Icon</span>
+                        </div>
+                        <ArrowRight size={20} style={{ color: 'rgba(68, 45, 28, 0.5)' }} />
+                      </button>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAddCategory}
+                        className="btn-primary w-full"
+                      >
+                        Add Category
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="grid grid-cols-3 gap-3">
+                {categories.map((cat, index) => {
+                  const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
 
                   return (
                     <motion.div
-                      key={badge.achievementId}
+                      key={cat.id}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="relative flex flex-col items-center"
+                      transition={{ delay: index * 0.05 }}
+                      className="relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all"
+                      style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
                     >
-                      <div className="w-16 h-16 bg-[#c5b98f] rounded-full flex items-center justify-center mb-2">
-                        <AchievementIcon size={32} className="text-[#997c5c]" weight="fill" />
-                      </div>
-                      <span className="text-[#c5b98f] text-xs text-center font-medium">
-                        {achievement.name}
+                      <IconComponent size={28} style={{ color: '#84592B' }} />
+                      <span className="text-xs font-medium text-center" style={{ color: '#442D1C' }}>
+                        {cat.name}
                       </span>
+
+                      {!cat.isDefault && (
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => handleDeleteCategory(cat.id)}
+                          className="absolute -top-2 -right-2 p-1 rounded-full"
+                          style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+                        >
+                          <X size={12} />
+                        </motion.button>
+                      )}
                     </motion.div>
                   );
                 })}
-
-              {/* Empty slots if less than 3 badges */}
-              {[
-                ...Array(
-                  Math.max(
-                    0,
-                    3 - achievements.unlockedBadges.filter((b) => b.showcased).length
-                  )
-                ),
-              ].map((_, i) => (
-                <div key={`empty-${i}`} className="flex flex-col items-center">
-                  <div className="w-16 h-16 border border-dashed border-[#aaa17a] rounded-full flex items-center justify-center mb-2">
-                    <Lock size={24} className="text-[#aaa17a]" />
-                  </div>
-                  <span className="text-[#aaa17a] text-xs">Empty</span>
-                </div>
-              ))}
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setCurrentView('achievements')}
-              className="w-full py-2 bg-[#c5b98f] text-[#555555] rounded-xl font-semibold hover:bg-[#aaa17a] hover:text-white transition"
-            >
-              View All Achievements
-            </motion.button>
-          </motion.div>
-
-          {/* Account Section */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl p-5 mb-4"
-          >
-            <h2 className="text-[#555555] text-lg font-bold mb-4">Account</h2>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#555555] font-medium">Guest User</p>
-                <p className="text-[#aaa17a] text-sm">Using LocalStorage</p>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-2 px-4 py-2 bg-[#997c5c] text-white rounded-xl text-sm font-semibold"
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* Icon Picker Modal */}
+        <AnimatePresence>
+          {showIconPicker && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ backgroundColor: 'rgba(68, 45, 28, 0.6)' }}
+              onClick={() => setShowIconPicker(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.9 }}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-3xl p-6 max-w-md w-full"
+                style={{ backgroundColor: '#E8D1A7' }}
               >
-                <SignOut size={18} />
-                Logout
-              </motion.button>
-            </div>
-          </motion.div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold" style={{ color: '#442D1C' }}>Choose Icon</h3>
+                  <button onClick={() => setShowIconPicker(false)}>
+                    <X size={24} style={{ color: '#442D1C' }} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto">
+                  {CATEGORY_ICONS.map((iconObj) => {
+                    const Icon = iconObj.component;
+                    const isSelected = newCategory.iconName === iconObj.name;
+
+                    return (
+                      <motion.button
+                        key={iconObj.name}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          setNewCategory({ ...newCategory, iconName: iconObj.name });
+                          setShowIconPicker(false);
+                        }}
+                        className="aspect-square p-3 rounded-2xl transition-all"
+                        style={{
+                          backgroundColor: isSelected ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
+                          border: isSelected ? '2px solid #84592B' : '2px solid transparent',
+                        }}
+                      >
+                        <Icon size={28} style={{ color: isSelected ? '#E8D1A7' : '#442D1C' }} />
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Floating Navigation */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
+          <button
+            onClick={() => setCurrentView('home')}
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ color: '#E8D1A7' }}
+          >
+            <ArrowLeft size={24} weight="regular" />
+          </button>
+          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <button
+            onClick={() => {
+              setCurrentView('analytics');
+              fetchAnalytics('today');
+            }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <ChartBar size={24} weight="regular" />
+          </button>
+          <button
+            onClick={() => {
+              setCurrentView('achievements');
+              setHasNewAchievements(false);
+            }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <Trophy size={24} weight="regular" />
+          </button>
+          <button
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+          >
+            <User size={24} weight="regular" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
           {/* Payment Methods Section */}
           <motion.div
@@ -2192,7 +2700,6 @@ function App() {
   // RENDER: Analytics View
   // =============================================
   if (currentView === 'analytics') {
-    console.log('Rendering analytics view');
     const spendingStatus = calculateSpendingStatus();
     const periodLabels = {
       today: 'Today',
@@ -2202,290 +2709,327 @@ function App() {
     };
 
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="min-h-screen bg-[#c5b98f] flex items-center justify-center p-4"
-      >
-        <div className="w-full max-w-md">
-          {/* Spending Limit Overview */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.05 }}
-            className="bg-[#c5b98f] rounded-xl p-5 border border-[#aaa17a]/20 mb-4"
-          >
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-tiny text-[#503f37]/70">
-                {spendingLimit.period === 'week' ? 'This Week' : 'This Month'}
-              </span>
-              <span className="text-tiny text-[#503f37]/70">
-                of ${spendingLimit.amount}
+      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
+        {/* Espresso Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-6 pt-8 pb-16"
+          style={{ backgroundColor: '#442D1C' }}
+        >
+          <div className="max-w-2xl mx-auto">
+            <p className="text-sm mb-1" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+              {spendingLimit.period === 'week' ? 'This Week' : 'This Month'}
+            </p>
+            <div className="flex items-baseline gap-2">
+              <motion.span
+                key={spendingStatus.spent}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-5xl font-bold"
+                style={{ color: '#E8D1A7' }}
+              >
+                ${spendingStatus.spent.toFixed(2)}
+              </motion.span>
+              <span className="text-lg" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+                / ${spendingLimit.amount}
               </span>
             </div>
 
-            <div className="text-display text-[#555555] mb-3">
-              ${spendingStatus.spent.toFixed(2)}
-            </div>
-
-            <div className="w-full h-1.5 bg-[#aaa17a]/20 rounded-full overflow-hidden">
+            {/* Progress Bar */}
+            <div className="mt-4 w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(spendingStatus.percentage, 100)}%` }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
                 className="h-full rounded-full"
                 style={{
-                  backgroundColor: spendingStatus.isOverLimit ? '#ef4444' : '#784c33',
+                  backgroundColor: spendingStatus.isOverLimit ? '#ef4444' : '#84592B',
                 }}
               />
             </div>
-
             {spendingStatus.isOverLimit && (
-              <p className="text-tiny text-red-600 mt-2 text-center">
+              <p className="text-sm text-red-400 mt-2">
                 You've exceeded your spending limit
               </p>
             )}
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Main Analytics Card */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="bg-[#555555] rounded-xl p-5 mb-6"
-          >
-            {/* Top Section: Spent Amount */}
-            <div className="flex items-start justify-between mb-8">
-              {/* Left: Focus */}
-              <div>
-                <motion.p
-                  key={analyticsData.period}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-[#aaa17a] text-sm mb-2"
-                >
-                  Spent {periodLabels[analyticsData.period]}
-                </motion.p>
-                <motion.p
-                  key={analyticsData.total}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', stiffness: 200 }}
-                  className="text-[#c5b98f] text-5xl font-bold"
-                >
-                  ${analyticsData.total.toFixed(2)}
-                </motion.p>
-              </div>
-
-              {/* Right: Period Selector */}
-              <div className="flex flex-col gap-3">
+        {/* Cream Floating Sheet */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex-1 px-6 pt-8 pb-32 -mt-4"
+          style={{
+            backgroundColor: '#E8D1A7',
+            borderTopLeftRadius: '2rem',
+            borderTopRightRadius: '2rem',
+            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            minHeight: 'calc(100vh - 180px)',
+          }}
+        >
+          <div className="max-w-2xl mx-auto">
+            {/* Period Selector */}
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {['today', 'week', 'month', 'year'].map((period) => (
                 <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => fetchAnalytics('week')}
-                  className={`p-2 rounded-lg transition ${
-                    analyticsData.period === 'week'
-                      ? 'bg-[#997c5c] text-[#c5b98f]'
-                      : 'text-[#aaa17a] hover:bg-[#997c5c]/20'
-                  }`}
+                  key={period}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => fetchAnalytics(period)}
+                  className="px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
+                  style={{
+                    backgroundColor: analyticsData.period === period ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
+                    color: analyticsData.period === period ? '#E8D1A7' : '#442D1C',
+                    boxShadow: analyticsData.period === period ? '0 4px 15px rgba(68, 45, 28, 0.2)' : 'none',
+                  }}
                 >
-                  <CalendarPlus size={24} />
+                  {periodLabels[period]}
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => fetchAnalytics('month')}
-                  className={`p-2 rounded-lg transition ${
-                    analyticsData.period === 'month'
-                      ? 'bg-[#997c5c] text-[#c5b98f]'
-                      : 'text-[#aaa17a] hover:bg-[#997c5c]/20'
-                  }`}
-                >
-                  <CalendarBlank size={24} />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => fetchAnalytics('year')}
-                  className={`p-2 rounded-lg transition ${
-                    analyticsData.period === 'year'
-                      ? 'bg-[#997c5c] text-[#c5b98f]'
-                      : 'text-[#aaa17a] hover:bg-[#997c5c]/20'
-                  }`}
-                >
-                  <Stack size={24} />
-                </motion.button>
-              </div>
+              ))}
             </div>
 
-            {/* Bottom Section: Ledger */}
-            <div>
-              <h3 className="text-[#aaa17a] text-sm mb-4">
-                {periodLabels[analyticsData.period]}'s Ledger
-              </h3>
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                <AnimatePresence>
-                  {analyticsData.transactions.map((transaction, index) => {
-                    const category = categories.find((c) => c.name === transaction.category);
-                    const CategoryIcon = category
-                      ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
-                      : null;
-                    const FinalIcon = CategoryIcon || Tag;
-
-                    return (
-                      <motion.div
-                        key={transaction.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-center justify-between text-[#c5b98f]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FinalIcon size={20} className="text-[#aaa17a]" />
-                          <span className="text-sm">
-                            {transaction.description || transaction.category}
-                          </span>
-                        </div>
-                        <span className="font-semibold">
-                          ${parseFloat(transaction.amount).toFixed(2)}
-                        </span>
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Category Spending Breakdown */}
-          {analyticsData.transactions.length > 0 && (() => {
-            const categoryBreakdown = calculateCategoryTotals(analyticsData.transactions);
-
-            return categoryBreakdown.length > 0 ? (
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="bg-[#555555] rounded-xl p-5 mb-6"
-              >
-                <h3 className="text-[#aaa17a] text-sm mb-4">Breakdown by Category</h3>
-
-                <div className="space-y-4">
-                  {categoryBreakdown.map((item, index) => {
-                    const category = categories.find((c) => c.name === item.category);
-                    const IconComponent = category
-                      ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
-                      : null;
-                    const FinalIcon = IconComponent || Tag;
-
-                    return (
-                      <motion.div
-                        key={item.category}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="flex items-center gap-3"
-                      >
-                        {/* Icon */}
-                        <FinalIcon size={20} className="text-[#aaa17a] flex-shrink-0" />
-
-                        {/* Category Name */}
-                        <span className="text-[#c5b98f] text-sm w-24 flex-shrink-0">
-                          {item.category}
-                        </span>
-
-                        {/* Amount */}
-                        <span className="text-[#c5b98f] text-sm font-semibold w-16 text-right flex-shrink-0">
-                          ${item.amount.toFixed(2)}
-                        </span>
-
-                        {/* Progress Bar */}
-                        <div className="flex-1 h-2 bg-[#aaa17a]/20 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.percentage}%` }}
-                            transition={{ duration: 0.5, delay: index * 0.05 + 0.2 }}
-                            className="h-full bg-[#c5b98f] rounded-full"
-                          />
-                        </div>
-
-                        {/* Percentage */}
-                        <span className="text-[#aaa17a] text-xs w-10 text-right flex-shrink-0">
-                          {item.percentage.toFixed(0)}%
-                        </span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-
-                {/* Total */}
-                <div className="mt-6 pt-4 border-t border-[#aaa17a]/30 flex items-center justify-between">
-                  <span className="text-[#aaa17a] text-sm font-semibold">Total</span>
-                  <span className="text-[#c5b98f] text-lg font-bold">
+            {/* Main Spending Card */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-3xl p-6 mb-6"
+              style={{
+                backgroundColor: '#442D1C',
+                boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-sm mb-1" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+                    Spent {periodLabels[analyticsData.period]}
+                  </p>
+                  <motion.p
+                    key={analyticsData.total}
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: 1 }}
+                    className="text-4xl font-bold"
+                    style={{ color: '#E8D1A7' }}
+                  >
                     ${analyticsData.total.toFixed(2)}
-                  </span>
+                  </motion.p>
                 </div>
-              </motion.div>
-            ) : null;
-          })()}
-
-          {/* Spending Insights Card */}
-          {(() => {
-            const insights = getAllInsights();
-            const currentInsight = insights[currentInsightIndex % insights.length];
-            const InsightIcon = getInsightIcon(currentInsight.icon);
-
-            return (
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="w-full bg-[#555555] rounded-xl p-5 mb-4"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <InsightIcon size={20} className="text-[#c5b98f]" weight="regular" />
-                    <h3 className="text-[#c5b98f] text-sm">
-                      {currentInsight.title}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={rotateInsight}
-                    className="p-1 text-[#aaa17a] hover:text-[#c5b98f] transition-colors"
-                  >
-                    <ArrowsClockwise size={16} />
-                  </button>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
+                  <ChartBar size={28} style={{ color: '#E8D1A7' }} />
                 </div>
+              </div>
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentInsight.type}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <p className="text-[#c5b98f] text-2xl mb-1">
-                      {currentInsight.value}
+              {/* Ledger */}
+              <div>
+                <h3 className="text-sm mb-4" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+                  {periodLabels[analyticsData.period]}'s Transactions
+                </h3>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {analyticsData.transactions.length === 0 ? (
+                    <p className="text-center py-4" style={{ color: 'rgba(232, 209, 167, 0.4)' }}>
+                      No transactions yet
                     </p>
-                    <p className="text-[#aaa17a] text-tiny">{currentInsight.subtitle}</p>
-                  </motion.div>
-                </AnimatePresence>
-              </motion.div>
-            );
-          })()}
+                  ) : (
+                    analyticsData.transactions.map((transaction, index) => {
+                      const category = categories.find((c) => c.name === transaction.category);
+                      const CategoryIcon = category
+                        ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
+                        : null;
+                      const FinalIcon = CategoryIcon || Tag;
 
-          {/* Back to Home Button */}
+                      return (
+                        <motion.div
+                          key={transaction.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="flex items-center justify-between py-2"
+                          style={{ color: '#E8D1A7' }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
+                              <FinalIcon size={20} style={{ color: '#E8D1A7' }} />
+                            </div>
+                            <div>
+                              <span className="text-sm font-medium">
+                                {transaction.description || transaction.category}
+                              </span>
+                              <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+                                {transaction.category}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="font-semibold">
+                            ${parseFloat(transaction.amount).toFixed(2)}
+                          </span>
+                        </motion.div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Category Breakdown */}
+            {analyticsData.transactions.length > 0 && (() => {
+              const categoryBreakdown = calculateCategoryTotals(analyticsData.transactions);
+
+              return categoryBreakdown.length > 0 ? (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.25 }}
+                  className="rounded-3xl p-6 mb-6"
+                  style={{
+                    backgroundColor: '#f5e6cc',
+                    boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                  }}
+                >
+                  <h3 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>
+                    Breakdown by Category
+                  </h3>
+
+                  <div className="space-y-4">
+                    {categoryBreakdown.map((item, index) => {
+                      const category = categories.find((c) => c.name === item.category);
+                      const IconComponent = category
+                        ? CATEGORY_ICONS.find((ic) => ic.name === category.iconName)?.component
+                        : null;
+                      const FinalIcon = IconComponent || Tag;
+
+                      return (
+                        <motion.div
+                          key={item.category}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                            <FinalIcon size={20} style={{ color: '#442D1C' }} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-medium" style={{ color: '#442D1C' }}>
+                                {item.category}
+                              </span>
+                              <span className="text-sm font-semibold" style={{ color: '#442D1C' }}>
+                                ${item.amount.toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${item.percentage}%` }}
+                                transition={{ duration: 0.5, delay: index * 0.05 }}
+                                className="h-full rounded-full"
+                                style={{ backgroundColor: '#84592B' }}
+                              />
+                            </div>
+                          </div>
+                          <span className="text-xs w-10 text-right" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                            {item.percentage.toFixed(0)}%
+                          </span>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ) : null;
+            })()}
+
+            {/* Insights Card */}
+            {(() => {
+              const insights = getAllInsights();
+              const currentInsight = insights[currentInsightIndex % insights.length];
+              const InsightIcon = getInsightIcon(currentInsight.icon);
+
+              return (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.35 }}
+                  className="rounded-3xl p-6"
+                  style={{
+                    backgroundColor: '#442D1C',
+                    boxShadow: '0 8px 32px rgba(68, 45, 28, 0.15)',
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <InsightIcon size={20} style={{ color: '#E8D1A7' }} weight="regular" />
+                      <h3 className="text-sm" style={{ color: '#E8D1A7' }}>
+                        {currentInsight.title}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={rotateInsight}
+                      className="p-2 rounded-full transition-colors"
+                      style={{ color: 'rgba(232, 209, 167, 0.6)' }}
+                    >
+                      <ArrowsClockwise size={18} />
+                    </button>
+                  </div>
+
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentInsight.type}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                    >
+                      <p className="text-2xl font-bold mb-1" style={{ color: '#E8D1A7' }}>
+                        {currentInsight.value}
+                      </p>
+                      <p className="text-sm" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+                        {currentInsight.subtitle}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                </motion.div>
+              );
+            })()}
+          </div>
+        </motion.div>
+
+        {/* Floating Navigation */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
           <button
             onClick={() => setCurrentView('home')}
-            className="text-sm text-center text-[#555555] hover:text-[#784c33] transition-colors w-full flex items-center justify-center gap-1.5 mt-4"
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ color: '#E8D1A7' }}
           >
-            <ArrowLeft size={14} weight="regular" />
-            <span>Back to Home</span>
+            <ArrowLeft size={24} weight="regular" />
+          </button>
+          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <button
+            className="p-3 rounded-full transition-all duration-200"
+            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+          >
+            <ChartBar size={24} weight="regular" />
+          </button>
+          <button
+            onClick={() => {
+              setCurrentView('achievements');
+              setHasNewAchievements(false);
+            }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <Trophy size={24} weight="regular" />
+          </button>
+          <button
+            onClick={() => setCurrentView('profile')}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
+            style={{ color: '#E8D1A7' }}
+          >
+            <User size={24} weight="regular" />
           </button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -2524,30 +3068,40 @@ function App() {
             >
 
               {/* Start Tracking Button */}
-              <button
+              <motion.button
                 onClick={handleStartTracking}
-                className="w-40 h-40 rounded-full border border-[#aaa17a] bg-[#997c5c]/10 flex items-center justify-center text-lg font-semibold text-[#555555] hover:bg-[#997c5c]/20 hover:border-[#784c33] transition-all mb-12"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="w-44 h-44 rounded-full flex items-center justify-center text-lg font-semibold transition-all mb-16"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  color: '#442D1C',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.25), 0 4px 12px rgba(68, 45, 28, 0.15)',
+                }}
               >
                 Start Tracking
-              </button>
+              </motion.button>
 
-              {/* Bottom Navigation */}
+              {/* Bottom Navigation - Floating Pill */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex gap-6"
+                className="flex items-center gap-1 px-3 py-2 rounded-full"
+                style={{
+                  backgroundColor: '#442D1C',
+                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.3)',
+                }}
               >
                 <button
                   type="button"
                   onClick={() => {
-                    console.log('Analytics button clicked');
                     setCurrentView('analytics');
                     fetchAnalytics('today');
                   }}
-                  className="relative p-2 rounded-lg transition-colors text-[#555555] hover:text-[#784c33]"
+                  className="p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
                 >
-                  <ChartBar size={20} weight="regular" />
+                  <ChartBar size={24} weight="regular" />
                 </button>
                 <button
                   type="button"
@@ -2555,19 +3109,19 @@ function App() {
                     setCurrentView('achievements');
                     setHasNewAchievements(false);
                   }}
-                  className="relative p-2 rounded-lg transition-colors text-[#555555] hover:text-[#784c33]"
+                  className="relative p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
                 >
-                  <Trophy size={20} weight="regular" />
+                  <Trophy size={24} weight="regular" />
                   {hasNewAchievements && (
-                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full" />
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={() => setCurrentView('profile')}
-                  className="relative p-2 rounded-lg transition-colors text-[#555555] hover:text-[#784c33]"
+                  className="p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
                 >
-                  <User size={20} weight="regular" />
+                  <User size={24} weight="regular" />
                 </button>
               </motion.div>
             </motion.div>
