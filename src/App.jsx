@@ -2604,37 +2604,40 @@ function App() {
                   </div>
                 </div>
 
-                {/* Next Button */}
-                <motion.button
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => formData.amount && setWizardStep(2)}
-                  disabled={!formData.amount}
-                  className="mt-8 mx-auto p-2.5 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: '#E8D1A7',
-                  }}
-                >
-                  <motion.div
-                    className="p-2.5 rounded-full transition-all"
-                    whileHover={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}
-                    style={{ color: '#E8D1A7' }}
+                {/* Next & Back Button Row */}
+                <div className="mt-8 flex gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleGoBack}
+                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#84592B',
+                      border: '2px solid #84592B',
+                    }}
                   >
-                    <ArrowRight size={24} weight="bold" />
-                  </motion.div>
-                </motion.button>
+                    <ArrowLeft size={20} weight="bold" />
+                    <span>Back</span>
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => formData.amount && setWizardStep(2)}
+                    disabled={!formData.amount}
+                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#84592B',
+                      border: '2px solid #84592B',
+                      opacity: formData.amount ? 1 : 0.5,
+                    }}
+                  >
+                    <span>Next</span>
+                    <ArrowRight size={20} weight="bold" />
+                  </motion.button>
+                </div>
               </motion.div>
-
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
             </>
           )}
 
@@ -2657,7 +2660,7 @@ function App() {
                   <span className="text-sm font-medium" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>Step 2 of 5</span>
                   <h2 className="text-2xl md:text-3xl font-bold mt-2" style={{ color: '#442D1C' }}>What category?</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                   {categories.map((cat, index) => {
                     const IconComponent = CATEGORY_ICONS.find((ic) => ic.name === cat.iconName)?.component || Tag;
                     return (
@@ -2682,9 +2685,9 @@ function App() {
                         }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <div className="flex flex-col items-center gap-2">
-                          <IconComponent size={28} style={{ color: '#84592B' }} />
-                          <span className="text-sm font-medium" style={{ color: '#442D1C' }}>
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <IconComponent size={32} style={{ color: '#84592B' }} />
+                          <span className="text-sm font-medium text-center" style={{ color: '#442D1C' }}>
                             {cat.name}
                           </span>
                         </div>
@@ -2693,16 +2696,40 @@ function App() {
                   })}
                 </div>
               </motion.div>
-
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
+              
+              {/* Back & Next Button Row - Outside Card */}
+              <div className="mt-6 flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => formData.category && setWizardStep(3)}
+                  disabled={!formData.category}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                    opacity: formData.category ? 1 : 0.5,
+                  }}
+                >
+                  <span>Next</span>
+                  <ArrowRight size={20} weight="bold" />
+                </motion.button>
+              </div>
             </>
           )}
 
@@ -2724,7 +2751,7 @@ function App() {
                 <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
                   How did you pay?
                 </h2>
-                <div className="flex flex-col gap-3 md:flex-row">
+                <div className="flex flex-col gap-3">
                   {['Cash', 'Card', 'Wallet'].map((type, index) => (
                     <motion.button
                       key={type}
@@ -2750,15 +2777,23 @@ function App() {
                 </div>
               </motion.div>
 
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
+              {/* Back Button Row - Outside Card */}
+              <div className="mt-6 flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+              </div>
             </>
           )}
 
@@ -2814,7 +2849,7 @@ function App() {
                           });
                           setWizardStep(5);
                         }}
-                        className="py-4 px-6 rounded-2xl font-semibold text-lg transition-all flex items-center justify-between"
+                        className="w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all flex items-center justify-between"
                         style={{
                           backgroundColor: 'rgba(68, 45, 28, 0.08)',
                           color: '#442D1C',
@@ -2826,17 +2861,25 @@ function App() {
                     ))}
                   </div>
                 )}
-              </motion.div>
 
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
+                {/* Back Button Row - Outside Card */}
+                <div className="mt-6 flex gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleGoBack}
+                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: '#84592B',
+                      border: '2px solid #84592B',
+                    }}
+                  >
+                    <ArrowLeft size={20} weight="bold" />
+                    <span>Back</span>
+                  </motion.button>
+                </div>
+              </motion.div>
             </>
           )}
 
@@ -2929,15 +2972,23 @@ function App() {
                 </AnimatePresence>
               </motion.div>
 
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
+              {/* Back Button Row */}
+              <div className="mt-6 flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+              </div>
             </>
           )}
 
@@ -2973,23 +3024,38 @@ function App() {
                   }}
                   placeholder="e.g., Morning coffee"
                 />
+              </motion.div>
+
+              {/* Back & Save Button Row - Outside Card */}
+              <div className="mt-6 flex gap-3">
                 <motion.button
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSaveTransaction}
-                  disabled={isSaving}
-                  className="mx-auto p-2.5 rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#E8D1A7',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
                   }}
                 >
-                  <motion.div
-                    className="p-2.5 rounded-full transition-all"
-                    whileHover={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}
-                    style={{ color: '#E8D1A7' }}
-                  >
-                    {isSaving ? (
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSaveTransaction}
+                  disabled={isSaving}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  {isSaving ? (
+                    <>
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{
@@ -2998,37 +3064,36 @@ function App() {
                           ease: 'linear',
                         }}
                       >
-                        <Check size={24} weight="bold" />
+                        <Check size={20} weight="bold" />
                       </motion.div>
-                    ) : (
-                      <Check size={24} weight="bold" />
-                    )}
-                  </motion.div>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Save</span>
+                      <Check size={20} weight="bold" />
+                    </>
+                  )}
                 </motion.button>
-              </motion.div>
-
-              {/* Back Button - Below Card */}
-              <button
-                onClick={handleGoBack}
-                className="text-sm text-center font-medium mt-6 flex items-center justify-center gap-2 w-full transition-colors"
-                style={{ color: '#E8D1A7' }}
-              >
-                <ArrowLeft size={16} weight="regular" />
-                <span>Go Back</span>
-              </button>
+              </div>
             </>
           )}
 
           {/* Step 7: Success / Scrapbook */}
           {wizardStep === 7 && (
-            <motion.div
-              key="step-7"
-              variants={slideVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white rounded-xl p-8 text-center"
-            >
+            <>
+              <motion.div
+                key="step-7"
+                variants={slideVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="rounded-3xl p-8 text-center"
+                style={{
+                  backgroundColor: '#E8D1A7',
+                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                }}
+              >
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -3037,15 +3102,19 @@ function App() {
                   stiffness: 200,
                   damping: 15,
                 }}
-                className="w-24 h-24 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center"
+                className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: 'rgba(132, 89, 43, 0.2)',
+                }}
               >
-                <Check size={48} className="text-green-600" weight="bold" />
+                <Check size={48} style={{ color: '#84592B' }} weight="bold" />
               </motion.div>
               <motion.h2
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="text-[#555555] text-2xl font-bold mb-2"
+                className="text-2xl font-bold mb-2"
+                style={{ color: '#442D1C' }}
               >
                 Transaction Saved!
               </motion.h2>
@@ -3053,7 +3122,8 @@ function App() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-[#aaa17a] mb-8"
+                className="mb-8"
+                style={{ color: 'rgba(68, 45, 28, 0.6)' }}
               >
                 ${formData.amount} spent on {formData.category}
               </motion.p>
@@ -3062,7 +3132,12 @@ function App() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleTrackAnother}
-                  className="flex-1 py-2.5 border border-[#aaa17a] rounded-xl text-[#555555] font-semibold hover:bg-[#aaa17a] hover:text-white transition"
+                  className="flex-1 py-2.5 rounded-xl font-semibold transition"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
                 >
                   Track Another
                 </motion.button>
@@ -3070,7 +3145,12 @@ function App() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleDone}
-                  className="flex-1 py-2.5 bg-[#997c5c] text-white rounded-xl font-semibold hover:bg-[#555555] transition"
+                  className="flex-1 py-2.5 rounded-xl font-semibold transition"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
                 >
                   Done
                 </motion.button>
@@ -3084,6 +3164,7 @@ function App() {
                 Add Photo
               </motion.button>
             </motion.div>
+            </>
           )}
         </AnimatePresence>
 
