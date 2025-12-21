@@ -2603,41 +2603,41 @@ function App() {
                     />
                   </div>
                 </div>
-
-                {/* Next & Back Button Row */}
-                <div className="mt-8 flex gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleGoBack}
-                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: '#84592B',
-                      border: '2px solid #84592B',
-                    }}
-                  >
-                    <ArrowLeft size={20} weight="bold" />
-                    <span>Back</span>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => formData.amount && setWizardStep(2)}
-                    disabled={!formData.amount}
-                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: '#84592B',
-                      border: '2px solid #84592B',
-                      opacity: formData.amount ? 1 : 0.5,
-                    }}
-                  >
-                    <span>Next</span>
-                    <ArrowRight size={20} weight="bold" />
-                  </motion.button>
-                </div>
               </motion.div>
+
+              {/* Next & Back Button Row - Outside Card */}
+              <div className="mt-6 flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => formData.amount && setWizardStep(2)}
+                  disabled={!formData.amount}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                    opacity: formData.amount ? 1 : 0.5,
+                  }}
+                >
+                  <span>Next</span>
+                  <ArrowRight size={20} weight="bold" />
+                </motion.button>
+              </div>
             </>
           )}
 
@@ -2832,7 +2832,7 @@ function App() {
                     </motion.button>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+                  <div className="flex flex-col gap-3">
                     {cards.map((card, index) => (
                       <motion.button
                         key={card.id}
@@ -2861,25 +2861,25 @@ function App() {
                     ))}
                   </div>
                 )}
-
-                {/* Back Button Row - Outside Card */}
-                <div className="mt-6 flex gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleGoBack}
-                    className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: '#84592B',
-                      border: '2px solid #84592B',
-                    }}
-                  >
-                    <ArrowLeft size={20} weight="bold" />
-                    <span>Back</span>
-                  </motion.button>
-                </div>
               </motion.div>
+
+              {/* Back Button Row - Outside Card */}
+              <div className="mt-6 flex gap-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGoBack}
+                  className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: '#84592B',
+                    border: '2px solid #84592B',
+                  }}
+                >
+                  <ArrowLeft size={20} weight="bold" />
+                  <span>Back</span>
+                </motion.button>
+              </div>
             </>
           )}
 
