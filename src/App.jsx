@@ -499,6 +499,8 @@ function App() {
   const [newlyUnlockedBadge, setNewlyUnlockedBadge] = useState(null);
   const [hasNewAchievements, setHasNewAchievements] = useState(false);
   const [achievementTab, setAchievementTab] = useState('all');
+  const [activeCarouselSlide, setActiveCarouselSlide] = useState(0);
+  const carouselRef = React.useRef(null);
 
   // Budget Goals State
   const [budgets, setBudgets] = useState(() => {
@@ -1337,52 +1339,138 @@ function App() {
     };
 
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
-        {/* Espresso Header */}
+      <div className="min-h-screen" style={{ backgroundColor: '#020202' }}>
+        {/* Black Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="px-6 pt-8 pb-16"
-          style={{ backgroundColor: '#442D1C' }}
+          style={{ backgroundColor: '#020202' }}
         >
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6" style={{ color: '#E8D1A7' }}>
+            <h1 className="text-3xl font-bold mb-6" style={{ color: '#FFFFFF' }}>
               Achievements
             </h1>
 
             {/* Stats Row */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
-                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{unlockedCount}</p>
-                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Unlocked</p>
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: '#2A2A2A' }}>
+                <p className="text-3xl font-bold" style={{ color: '#EBCDAA' }}>{unlockedCount}</p>
+                <p className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Unlocked</p>
               </div>
-              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
-                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{currentStreak}</p>
-                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Day Streak</p>
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: '#2A2A2A' }}>
+                <p className="text-3xl font-bold" style={{ color: '#EBCDAA' }}>{currentStreak}</p>
+                <p className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Day Streak</p>
               </div>
-              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
-                <p className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>{completionPercentage}%</p>
-                <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>Complete</p>
+              <div className="text-center p-4 rounded-2xl" style={{ backgroundColor: '#2A2A2A' }}>
+                <p className="text-3xl font-bold" style={{ color: '#EBCDAA' }}>{completionPercentage}%</p>
+                <p className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>Complete</p>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* Cream Floating Sheet */}
+        {/* White Floating Sheet */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="px-6 pt-6 pb-32 -mt-4"
           style={{
-            backgroundColor: '#E8D1A7',
+            backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 200px)',
           }}
         >
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto lg:max-w-5xl">
+            {/* Unlocked Achievements Carousel with Dot Indicators */}
+            {achievements.unlockedBadges.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#4D4D4D' }}>Your Achievements</h3>
+                
+                {/* Carousel Container */}
+                <div 
+                  ref={carouselRef}
+                  onScroll={(e) => {
+                    const scrollLeft = e.target.scrollLeft;
+                    const cardWidth = 296; // 280px + 16px gap
+                    const newIndex = Math.round(scrollLeft / cardWidth);
+                    setActiveCarouselSlide(Math.min(newIndex, achievements.unlockedBadges.length - 1));
+                  }}
+                  className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
+                >
+                  {achievements.unlockedBadges.map((badge, index) => {
+                    const achievement = ACHIEVEMENTS.find((a) => a.id === badge.achievementId);
+                    if (!achievement) return null;
+                    const AchievementIcon = getAchievementIcon(achievement.icon);
+
+                    return (
+                      <motion.div
+                        key={badge.achievementId}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="flex-shrink-0 snap-start rounded-2xl p-4 flex items-center gap-4"
+                        style={{ 
+                          width: '280px',
+                          height: '100px',
+                          backgroundColor: '#2A2A2A',
+                          boxShadow: '0 8px 24px rgba(2, 2, 2, 0.15)',
+                        }}
+                      >
+                        {/* Icon Area */}
+                        <div 
+                          className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0" 
+                          style={{ backgroundColor: '#020202' }}
+                        >
+                          <AchievementIcon size={32} style={{ color: '#EBCDAA' }} weight="fill" />
+                        </div>
+                        
+                        {/* Text Content */}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-sm mb-1 truncate" style={{ color: '#FFFFFF' }}>
+                            {achievement.name}
+                          </h4>
+                          <p className="text-xs mb-1 line-clamp-2" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                            {achievement.description}
+                          </p>
+                          <p className="text-xs font-medium" style={{ color: '#EBCDAA' }}>
+                            {new Date(badge.unlockedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                {/* Dot Indicators */}
+                {achievements.unlockedBadges.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-3">
+                    {achievements.unlockedBadges.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          if (carouselRef.current) {
+                            carouselRef.current.scrollTo({
+                              left: index * 296,
+                              behavior: 'smooth'
+                            });
+                          }
+                        }}
+                        className="w-2 h-2 rounded-full transition-all duration-200"
+                        style={{
+                          backgroundColor: index === activeCarouselSlide ? '#EBCDAA' : 'rgba(77, 77, 77, 0.2)',
+                          transform: index === activeCarouselSlide ? 'scale(1.2)' : 'scale(1)',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Category Tabs */}
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
               {['all', 'unlocked', 'locked', 'in progress'].map((tab) => (
@@ -1391,9 +1479,9 @@ function App() {
                   onClick={() => setAchievementTab(tab)}
                   className="px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
                   style={{
-                    backgroundColor: achievementTab === tab ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
-                    color: achievementTab === tab ? '#E8D1A7' : '#442D1C',
-                    boxShadow: achievementTab === tab ? '0 4px 15px rgba(68, 45, 28, 0.2)' : 'none',
+                    backgroundColor: achievementTab === tab ? '#020202' : 'rgba(77, 77, 77, 0.08)',
+                    color: achievementTab === tab ? '#FFFFFF' : '#4D4D4D',
+                    boxShadow: achievementTab === tab ? '0 4px 15px rgba(2, 2, 2, 0.2)' : 'none',
                   }}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -1401,149 +1489,181 @@ function App() {
               ))}
             </div>
 
-            {/* Achievements Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAchievements.map((achievement, index) => {
+            {/* Grouped Achievements by Difficulty */}
+            {(() => {
+              // Group filtered achievements by difficulty
+              const easyAchievements = filteredAchievements.filter(a => a.difficulty === 'easy');
+              const mediumAchievements = filteredAchievements.filter(a => a.difficulty === 'medium');
+              const hardAchievements = filteredAchievements.filter(a => a.difficulty === 'hard');
+
+              const difficultyGroups = [
+                { name: 'Getting Started', key: 'easy', items: easyAchievements, color: '#4CAF50' },
+                { name: 'Keep Going', key: 'medium', items: mediumAchievements, color: '#FF9800' },
+                { name: 'Master Level', key: 'hard', items: hardAchievements, color: '#F44336' },
+              ].filter(group => group.items.length > 0);
+
+              const renderAchievementCard = (achievement, index) => {
                 const isUnlocked = achievements.unlockedBadges.some(
                   (b) => b.achievementId === achievement.id
                 );
                 const progress = achievements.progress[achievement.id];
                 const badge = achievements.unlockedBadges.find((b) => b.achievementId === achievement.id);
-                const isShowcased = badge?.showcased || false;
                 const AchievementIcon = getAchievementIcon(achievement.icon);
 
                 return (
                   <motion.div
                     key={achievement.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.03 }}
-                    className="rounded-3xl p-5 transition-all duration-200"
+                    className="flex-shrink-0 snap-start rounded-2xl p-4 flex items-center gap-4"
                     style={{
-                      backgroundColor: isUnlocked ? '#f5e6cc' : '#ffffff',
+                      width: '280px',
+                      height: '100px',
+                      backgroundColor: isUnlocked ? '#2A2A2A' : '#FFFFFF',
                       boxShadow: isUnlocked
-                        ? '0 8px 32px rgba(68, 45, 28, 0.12)'
-                        : '0 4px 20px rgba(68, 45, 28, 0.06)',
-                      border: isUnlocked ? '2px solid #84592B' : '2px solid transparent',
+                        ? '0 8px 24px rgba(2, 2, 2, 0.15)'
+                        : '0 4px 16px rgba(2, 2, 2, 0.06)',
+                      border: isUnlocked ? '2px solid #EBCDAA' : '2px solid rgba(77, 77, 77, 0.1)',
                     }}
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Badge Icon */}
-                      <div
-                        className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-                        style={{
-                          backgroundColor: isUnlocked ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
-                        }}
+                    {/* Icon Area */}
+                    <div
+                      className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+                      style={{
+                        backgroundColor: isUnlocked ? '#020202' : 'rgba(77, 77, 77, 0.08)',
+                      }}
+                    >
+                      <AchievementIcon
+                        size={28}
+                        style={{ color: isUnlocked ? '#EBCDAA' : 'rgba(77, 77, 77, 0.3)' }}
+                        weight={isUnlocked ? 'fill' : 'regular'}
+                      />
+                    </div>
+
+                    {/* Text Content */}
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className="font-bold text-sm mb-1 truncate"
+                        style={{ color: isUnlocked ? '#FFFFFF' : '#4D4D4D' }}
                       >
-                        <AchievementIcon
-                          size={28}
-                          style={{ color: isUnlocked ? '#E8D1A7' : 'rgba(68, 45, 28, 0.3)' }}
-                          weight={isUnlocked ? 'fill' : 'regular'}
-                        />
-                      </div>
+                        {achievement.name}
+                      </h4>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3
-                            className="font-bold text-sm truncate"
-                            style={{ color: isUnlocked ? '#442D1C' : 'rgba(68, 45, 28, 0.5)' }}
-                          >
-                            {achievement.name}
-                          </h3>
-                          {isUnlocked && (
-                            <motion.button
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => toggleShowcase(achievement.id)}
-                              className="p-1.5 rounded-full ml-2 flex-shrink-0"
-                              style={{
-                                backgroundColor: isShowcased ? '#84592B' : 'rgba(68, 45, 28, 0.1)',
-                              }}
-                            >
-                              <Star
-                                size={14}
-                                style={{ color: isShowcased ? '#E8D1A7' : '#442D1C' }}
-                                weight={isShowcased ? 'fill' : 'regular'}
-                              />
-                            </motion.button>
-                          )}
+                      {/* Progress or Description */}
+                      {!isUnlocked && progress ? (
+                        <div>
+                          <div className="flex items-center justify-between text-xs mb-1" style={{ color: 'rgba(77, 77, 77, 0.5)' }}>
+                            <span>{progress.current} / {progress.target}</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(77, 77, 77, 0.1)' }}>
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${(progress.current / progress.target) * 100}%` }}
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: '#EBCDAA' }}
+                            />
+                          </div>
                         </div>
-
-                        <p className="text-xs mb-3" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                      ) : (
+                        <p className="text-xs line-clamp-2" style={{ color: isUnlocked ? 'rgba(255, 255, 255, 0.6)' : 'rgba(77, 77, 77, 0.5)' }}>
                           {achievement.description}
                         </p>
+                      )}
 
-                        {/* Progress Bar (for locked/in-progress) */}
-                        {!isUnlocked && progress && (
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-1" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
-                              <span>Progress</span>
-                              <span>{progress.current} / {progress.target}</span>
-                            </div>
-                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(progress.current / progress.target) * 100}%` }}
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: '#84592B' }}
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Unlock Date */}
-                        {isUnlocked && badge && (
-                          <p className="text-xs font-medium" style={{ color: '#84592B' }}>
-                            ✓ Unlocked {new Date(badge.unlockedAt).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
+                      {/* Unlock Date for unlocked */}
+                      {isUnlocked && badge && (
+                        <p className="text-xs font-medium mt-1" style={{ color: '#EBCDAA' }}>
+                          ✓ {new Date(badge.unlockedAt).toLocaleDateString()}
+                        </p>
+                      )}
                     </div>
                   </motion.div>
                 );
-              })}
-            </div>
+              };
+
+              return (
+                <div className="space-y-6">
+                  {difficultyGroups.map((group) => (
+                    <div key={group.key}>
+                      {/* Group Header */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: group.color }}
+                        />
+                        <h4 className="text-sm font-semibold" style={{ color: '#4D4D4D' }}>
+                          {group.name}
+                        </h4>
+                        <span className="text-xs" style={{ color: 'rgba(77, 77, 77, 0.5)' }}>
+                          {group.items.filter(a => achievements.unlockedBadges.some(b => b.achievementId === a.id)).length}/{group.items.length}
+                        </span>
+                      </div>
+
+                      {/* Horizontal Scroll Row with Scroll Indicator */}
+                      <div className="relative">
+                        <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-achievements snap-x snap-mandatory scroll-smooth">
+                          {group.items.map((achievement, index) => renderAchievementCard(achievement, index))}
+                        </div>
+                        {/* Scroll Indicator */}
+                        {group.items.length > 3 && (
+                          <div 
+                            className="absolute right-0 top-0 bottom-2 w-12 flex items-center justify-end pointer-events-none"
+                            style={{ background: 'linear-gradient(to right, transparent, #FFFFFF)' }}
+                          >
+                            <ArrowRight size={20} style={{ color: '#4D4D4D', marginRight: '4px' }} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </motion.div>
 
-        {/* Floating Navigation */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
+        {/* Floating Navigation - Bottom on mobile, Left side vertical on desktop */}
+        <motion.div 
+          layoutId="floating-nav"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
+        >
           <button
             onClick={() => {
               setCurrentView('home');
               setHasNewAchievements(false);
             }}
             className="p-3 rounded-full transition-all duration-200"
-            style={{ color: '#E8D1A7' }}
+            style={{ color: '#FFFFFF' }}
           >
             <ArrowLeft size={24} weight="regular" />
           </button>
-          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <div className="w-px h-6 lg:w-6 lg:h-px mx-1 lg:my-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
           <button
             onClick={() => {
               setCurrentView('analytics');
               fetchAnalytics('today');
             }}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+            style={{ color: '#FFFFFF' }}
           >
             <ChartBar size={24} weight="regular" />
           </button>
           <button
             className="p-3 rounded-full transition-all duration-200"
-            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+            style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
           >
             <Trophy size={24} weight="regular" />
           </button>
           <button
             onClick={() => setCurrentView('profile')}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+            style={{ color: '#FFFFFF' }}
           >
             <User size={24} weight="regular" />
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -1555,114 +1675,36 @@ function App() {
     const status = calculateSpendingStatus();
 
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
-        {/* Espresso Header */}
+      <div className="min-h-screen" style={{ backgroundColor: '#020202' }}>
+        {/* Black Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="px-6 pt-8 pb-16"
-          style={{ backgroundColor: '#442D1C' }}
+          style={{ backgroundColor: '#020202' }}
         >
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold" style={{ color: '#E8D1A7' }}>
+            <h1 className="text-3xl font-bold" style={{ color: '#FFFFFF' }}>
               Profile
             </h1>
           </div>
         </motion.div>
 
-        {/* Cream Floating Sheet */}
+        {/* White Floating Sheet */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="px-6 pt-6 pb-32 -mt-4"
           style={{
-            backgroundColor: '#E8D1A7',
+            backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 200px)',
           }}
         >
           <div className="max-w-2xl mx-auto space-y-6">
-            {/* Badge Showcase */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="rounded-3xl p-6"
-              style={{
-                backgroundColor: '#442D1C',
-                boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
-              }}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold" style={{ color: '#E8D1A7' }}>Badge Showcase</h2>
-                <span className="text-sm" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
-                  {achievements.unlockedBadges.length}/{ACHIEVEMENTS.length}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {achievements.unlockedBadges
-                  .filter((badge) => badge.showcased)
-                  .slice(0, 3)
-                  .map((badge, index) => {
-                    const achievement = ACHIEVEMENTS.find((a) => a.id === badge.achievementId);
-                    if (!achievement) return null;
-
-                    const AchievementIcon = getAchievementIcon(achievement.icon);
-
-                    return (
-                      <motion.div
-                        key={badge.achievementId}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex flex-col items-center text-center"
-                      >
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2" style={{ backgroundColor: 'rgba(232, 209, 167, 0.15)' }}>
-                          <AchievementIcon size={32} style={{ color: '#E8D1A7' }} weight="fill" />
-                        </div>
-                        <span className="text-xs" style={{ color: '#E8D1A7' }}>
-                          {achievement.name}
-                        </span>
-                      </motion.div>
-                    );
-                  })}
-
-                {[
-                  ...Array(
-                    Math.max(
-                      0,
-                      3 - achievements.unlockedBadges.filter((b) => b.showcased).length
-                    )
-                  ),
-                ].map((_, i) => (
-                  <div key={`empty-${i}`} className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-2 border-2 border-dashed" style={{ borderColor: 'rgba(232, 209, 167, 0.3)' }}>
-                      <Lock size={24} style={{ color: 'rgba(232, 209, 167, 0.4)' }} />
-                    </div>
-                    <span className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.4)' }}>Empty</span>
-                  </div>
-                ))}
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentView('achievements')}
-                className="w-full py-3 rounded-2xl font-medium transition-all"
-                style={{
-                  backgroundColor: '#E8D1A7',
-                  color: '#442D1C',
-                  boxShadow: '0 4px 15px rgba(232, 209, 167, 0.2)',
-                }}
-              >
-                View All Achievements
-              </motion.button>
-            </motion.div>
-
             {/* Account Section */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -1670,24 +1712,24 @@ function App() {
               transition={{ delay: 0.2 }}
               className="rounded-3xl p-6"
               style={{
-                backgroundColor: '#f5e6cc',
-                boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                backgroundColor: '#2A2A2A',
+                boxShadow: '0 8px 32px rgba(2, 2, 2, 0.08)',
               }}
             >
-              <h2 className="text-lg font-bold mb-4" style={{ color: '#442D1C' }}>Account</h2>
+              <h2 className="text-lg font-bold mb-4" style={{ color: '#FFFFFF' }}>Account</h2>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium" style={{ color: '#442D1C' }}>Guest User</p>
-                  <p className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>Using LocalStorage</p>
+                  <p className="font-medium" style={{ color: '#FFFFFF' }}>Guest User</p>
+                  <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Using LocalStorage</p>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
                   style={{
-                    backgroundColor: '#84592B',
-                    color: '#E8D1A7',
-                    boxShadow: '0 4px 15px rgba(132, 89, 43, 0.3)',
+                    backgroundColor: '#EBCDAA',
+                    color: '#FFFFFF',
+                    boxShadow: '0 4px 15px rgba(235, 205, 170, 0.3)',
                   }}
                 >
                   <SignOut size={18} />
@@ -1705,20 +1747,20 @@ function App() {
                 transition={{ delay: 0.25 }}
                 className="rounded-3xl p-6"
                 style={{
-                  backgroundColor: '#f5e6cc',
-                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                  backgroundColor: '#2A2A2A',
+                  boxShadow: '0 8px 32px rgba(2, 2, 2, 0.08)',
                 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Payment Methods</h2>
+                  <h2 className="text-lg font-bold" style={{ color: '#FFFFFF' }}>Payment Methods</h2>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowAddCard(!showAddCard)}
                     className="p-2.5 rounded-full transition-all"
                     style={{
-                      backgroundColor: '#84592B',
-                      color: '#E8D1A7',
+                      backgroundColor: '#EBCDAA',
+                      color: '#FFFFFF',
                     }}
                   >
                     {showAddCard ? <X size={20} /> : <Plus size={20} />}
@@ -1733,7 +1775,7 @@ function App() {
                       exit={{ height: 0, opacity: 0 }}
                       className="mb-4 overflow-hidden"
                     >
-                      <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                      <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
                         <input
                           type="text"
                           placeholder="Card Nickname"
@@ -1764,7 +1806,7 @@ function App() {
 
                 <div className="space-y-3">
                   {cards.length === 0 ? (
-                    <p className="text-sm text-center py-4" style={{ color: 'rgba(68, 45, 28, 0.4)' }}>
+                    <p className="text-sm text-center py-4" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
                       No cards yet
                     </p>
                   ) : (
@@ -1775,15 +1817,15 @@ function App() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
                         className="flex items-center justify-between p-3 rounded-xl"
-                        style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
+                        style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(132, 89, 43, 0.2)' }}>
-                            <CreditCard size={20} style={{ color: '#84592B' }} />
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(235, 205, 170, 0.2)' }}>
+                            <CreditCard size={20} style={{ color: '#EBCDAA' }} />
                           </div>
                           <div>
-                            <p className="text-sm font-medium" style={{ color: '#442D1C' }}>{card.nickname}</p>
-                            <p className="text-xs" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>•••• {card.lastFour}</p>
+                            <p className="text-sm font-medium" style={{ color: '#FFFFFF' }}>{card.nickname}</p>
+                            <p className="text-xs" style={{ color: '#EBCDAA' }}>•••• {card.lastFour}</p>
                           </div>
                         </div>
                         <motion.button
@@ -1791,7 +1833,7 @@ function App() {
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleDeleteCard(card.id)}
                           className="p-2 rounded-lg transition-colors"
-                          style={{ color: '#84592B' }}
+                          style={{ color: '#EBCDAA' }}
                         >
                           <Trash size={18} />
                         </motion.button>
@@ -1808,12 +1850,12 @@ function App() {
                 transition={{ delay: 0.3 }}
                 className="rounded-3xl p-6"
                 style={{
-                  backgroundColor: '#f5e6cc',
-                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                  backgroundColor: '#2A2A2A',
+                  boxShadow: '0 8px 32px rgba(2, 2, 2, 0.08)',
                 }}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Spending Limit</h2>
+                  <h2 className="text-lg font-bold" style={{ color: '#FFFFFF' }}>Spending Limit</h2>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
@@ -1825,8 +1867,8 @@ function App() {
                     }}
                     className="p-2.5 rounded-full transition-all"
                     style={{
-                      backgroundColor: '#84592B',
-                      color: '#E8D1A7',
+                      backgroundColor: '#EBCDAA',
+                      color: '#FFFFFF',
                     }}
                   >
                     {showEditLimit ? <X size={20} /> : <Pencil size={20} />}
@@ -1838,28 +1880,28 @@ function App() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="p-4 rounded-2xl mb-4"
-                    style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                   >
                     <div className="flex items-baseline justify-between mb-2">
-                      <span className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>Current Limit</span>
-                      <span className="text-2xl font-bold" style={{ color: '#442D1C' }}>${spendingLimit.amount}</span>
+                      <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Current Limit</span>
+                      <span className="text-2xl font-bold" style={{ color: '#FFFFFF' }}>${spendingLimit.amount}</span>
                     </div>
-                    <p className="text-xs mb-4" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                    <p className="text-xs mb-4" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                       Per {spendingLimit.period === 'week' ? 'Week' : 'Month'}
                     </p>
                     <div>
-                      <div className="flex items-center justify-between mb-1 text-xs" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                      <div className="flex items-center justify-between mb-1 text-xs" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                         <span>${status.spent.toFixed(2)} spent</span>
                         <span>{status.percentage.toFixed(0)}%</span>
                       </div>
-                      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${status.percentage}%` }}
                           transition={{ duration: 0.5 }}
                           className="h-full rounded-full"
                           style={{
-                            backgroundColor: status.isOverLimit ? '#ef4444' : '#84592B',
+                            backgroundColor: status.isOverLimit ? '#ef4444' : '#EBCDAA',
                           }}
                         />
                       </div>
@@ -1875,7 +1917,7 @@ function App() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="p-4 rounded-2xl" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                      <div className="p-4 rounded-2xl" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
                         <input
                           type="number"
                           placeholder="Amount"
@@ -1888,8 +1930,8 @@ function App() {
                             onClick={() => setTempLimit({ ...tempLimit, period: 'week' })}
                             className="flex-1 py-2.5 rounded-xl font-medium transition-all"
                             style={{
-                              backgroundColor: tempLimit.period === 'week' ? '#84592B' : 'rgba(132, 89, 43, 0.1)',
-                              color: tempLimit.period === 'week' ? '#E8D1A7' : '#442D1C',
+                              backgroundColor: tempLimit.period === 'week' ? '#EBCDAA' : 'rgba(235, 205, 170, 0.1)',
+                              color: tempLimit.period === 'week' ? '#FFFFFF' : '#EBCDAA',
                             }}
                           >
                             Weekly
@@ -1898,8 +1940,8 @@ function App() {
                             onClick={() => setTempLimit({ ...tempLimit, period: 'month' })}
                             className="flex-1 py-2.5 rounded-xl font-medium transition-all"
                             style={{
-                              backgroundColor: tempLimit.period === 'month' ? '#84592B' : 'rgba(132, 89, 43, 0.1)',
-                              color: tempLimit.period === 'month' ? '#E8D1A7' : '#442D1C',
+                              backgroundColor: tempLimit.period === 'month' ? '#EBCDAA' : 'rgba(235, 205, 170, 0.1)',
+                              color: tempLimit.period === 'month' ? '#FFFFFF' : '#EBCDAA',
                             }}
                           >
                             Monthly
@@ -1927,20 +1969,20 @@ function App() {
               transition={{ delay: 0.4 }}
               className="rounded-3xl p-6"
               style={{
-                backgroundColor: '#f5e6cc',
-                boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                backgroundColor: '#2A2A2A',
+                boxShadow: '0 8px 32px rgba(2, 2, 2, 0.08)',
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold" style={{ color: '#442D1C' }}>Categories</h2>
+                <h2 className="text-lg font-bold" style={{ color: '#FFFFFF' }}>Categories</h2>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowAddCategory(!showAddCategory)}
                   className="p-2.5 rounded-full transition-all"
                   style={{
-                    backgroundColor: '#84592B',
-                    color: '#E8D1A7',
+                    backgroundColor: '#EBCDAA',
+                    color: '#020202',
                   }}
                 >
                   {showAddCategory ? <X size={20} /> : <Plus size={20} />}
@@ -1955,7 +1997,7 @@ function App() {
                     exit={{ height: 0, opacity: 0 }}
                     className="mb-4 overflow-hidden"
                   >
-                    <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
+                    <div className="p-4 rounded-2xl mb-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
                       <input
                         type="text"
                         placeholder="Category Name"
@@ -1967,18 +2009,18 @@ function App() {
                         onClick={() => setShowIconPicker(true)}
                         className="w-full mb-3 p-3 rounded-xl flex items-center justify-between transition-colors"
                         style={{
-                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                          backgroundColor: 'rgba(255, 255, 255, 0.08)',
                           border: '2px solid transparent',
                         }}
                       >
                         <div className="flex items-center gap-3">
                           {(() => {
                             const CurrentIcon = CATEGORY_ICONS.find((ic) => ic.name === newCategory.iconName)?.component || Tag;
-                            return <CurrentIcon size={24} style={{ color: '#84592B' }} />;
+                            return <CurrentIcon size={24} style={{ color: '#EBCDAA' }} />;
                           })()}
-                          <span style={{ color: '#442D1C' }}>Select Icon</span>
+                          <span style={{ color: '#FFFFFF' }}>Select Icon</span>
                         </div>
-                        <ArrowRight size={20} style={{ color: 'rgba(68, 45, 28, 0.5)' }} />
+                        <ArrowRight size={20} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
                       </button>
                       <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -2004,10 +2046,10 @@ function App() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.05 }}
                       className="relative flex flex-col items-center gap-2 p-4 rounded-2xl transition-all"
-                      style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}
+                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                     >
-                      <IconComponent size={28} style={{ color: '#84592B' }} />
-                      <span className="text-xs font-medium text-center" style={{ color: '#442D1C' }}>
+                      <IconComponent size={28} style={{ color: '#EBCDAA' }} />
+                      <span className="text-xs font-medium text-center" style={{ color: '#FFFFFF' }}>
                         {cat.name}
                       </span>
 
@@ -2016,7 +2058,7 @@ function App() {
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleDeleteCategory(cat.id)}
                         className="absolute -top-2 -right-2 p-1 rounded-full"
-                        style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+                        style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
                       >
                         <X size={12} />
                       </motion.button>
@@ -2036,7 +2078,7 @@ function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
-              style={{ backgroundColor: 'rgba(68, 45, 28, 0.6)' }}
+              style={{ backgroundColor: 'rgba(2, 2, 2, 0.8)' }}
               onClick={() => setShowIconPicker(false)}
             >
               <motion.div
@@ -2045,12 +2087,12 @@ function App() {
                 exit={{ scale: 0.9 }}
                 onClick={(e) => e.stopPropagation()}
                 className="rounded-3xl p-6 max-w-md w-full"
-                style={{ backgroundColor: '#E8D1A7' }}
+                style={{ backgroundColor: '#2A2A2A' }}
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold" style={{ color: '#442D1C' }}>Choose Icon</h3>
+                  <h3 className="text-xl font-bold" style={{ color: '#FFFFFF' }}>Choose Icon</h3>
                   <button onClick={() => setShowIconPicker(false)}>
-                    <X size={24} style={{ color: '#442D1C' }} />
+                    <X size={24} style={{ color: '#FFFFFF' }} />
                   </button>
                 </div>
 
@@ -2070,11 +2112,11 @@ function App() {
                         }}
                         className="aspect-square p-3 rounded-2xl transition-all"
                         style={{
-                          backgroundColor: isSelected ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
-                          border: isSelected ? '2px solid #84592B' : '2px solid transparent',
+                          backgroundColor: isSelected ? '#EBCDAA' : 'rgba(255, 255, 255, 0.08)',
+                          border: isSelected ? '2px solid #EBCDAA' : '2px solid transparent',
                         }}
                       >
-                        <Icon size={28} style={{ color: isSelected ? '#E8D1A7' : '#442D1C' }} />
+                        <Icon size={28} style={{ color: isSelected ? '#020202' : '#FFFFFF' }} />
                       </motion.button>
                     );
                   })}
@@ -2085,22 +2127,26 @@ function App() {
         </AnimatePresence>
 
         {/* Floating Navigation */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
+        <motion.div 
+          layoutId="floating-nav"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
+        >
           <button
             onClick={() => setCurrentView('home')}
             className="p-3 rounded-full transition-all duration-200"
-            style={{ color: '#E8D1A7' }}
+            style={{ color: '#FFFFFF' }}
           >
             <ArrowLeft size={24} weight="regular" />
           </button>
-          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <div className="w-px h-6 lg:w-6 lg:h-px mx-1 lg:my-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
           <button
             onClick={() => {
               setCurrentView('analytics');
               fetchAnalytics('today');
             }}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+            style={{ color: '#FFFFFF' }}
           >
             <ChartBar size={24} weight="regular" />
           </button>
@@ -2109,18 +2155,18 @@ function App() {
               setCurrentView('achievements');
               setHasNewAchievements(false);
             }}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+            style={{ color: '#FFFFFF' }}
           >
             <Trophy size={24} weight="regular" />
           </button>
           <button
             className="p-3 rounded-full transition-all duration-200"
-            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+            style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
           >
             <User size={24} weight="regular" />
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -2138,16 +2184,16 @@ function App() {
     };
 
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#442D1C' }}>
+      <div className="min-h-screen" style={{ backgroundColor: '#FFFFFF' }}>
         {/* Espresso Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="px-6 pt-8 pb-16"
-          style={{ backgroundColor: '#442D1C' }}
+          style={{ backgroundColor: '#020202' }}
         >
           <div className="max-w-2xl mx-auto">
-            <p className="text-sm mb-1" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+            <p className="text-sm mb-1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
               {spendingLimit.period === 'week' ? 'This Week' : 'This Month'}
             </p>
             <div className="flex items-baseline gap-2">
@@ -2156,24 +2202,24 @@ function App() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="text-5xl font-bold"
-                style={{ color: '#E8D1A7' }}
+                style={{ color: '#EBCDAA' }}
               >
                 ${spendingStatus.spent.toFixed(2)}
               </motion.span>
-              <span className="text-lg" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+              <span className="text-lg" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                 / ${spendingLimit.amount}
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="mt-4 w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }}>
+            <div className="mt-4 w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(spendingStatus.percentage, 100)}%` }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
                 className="h-full rounded-full"
                 style={{
-                  backgroundColor: spendingStatus.isOverLimit ? '#ef4444' : '#84592B',
+                  backgroundColor: spendingStatus.isOverLimit ? '#ef4444' : '#EBCDAA',
                 }}
               />
             </div>
@@ -2192,10 +2238,10 @@ function App() {
           transition={{ delay: 0.1 }}
           className="flex-1 px-6 pt-8 pb-32 -mt-4"
           style={{
-            backgroundColor: '#E8D1A7',
+            backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(68, 45, 28, 0.15)',
+            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 180px)',
           }}
         >
@@ -2210,9 +2256,9 @@ function App() {
                   onClick={() => fetchAnalytics(period)}
                   className="px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap"
                   style={{
-                    backgroundColor: analyticsData.period === period ? '#442D1C' : 'rgba(68, 45, 28, 0.08)',
-                    color: analyticsData.period === period ? '#E8D1A7' : '#442D1C',
-                    boxShadow: analyticsData.period === period ? '0 4px 15px rgba(68, 45, 28, 0.2)' : 'none',
+                    backgroundColor: analyticsData.period === period ? '#020202' : 'rgba(2, 2, 2, 0.08)',
+                    color: analyticsData.period === period ? '#FFFFFF' : '#4D4D4D',
+                    boxShadow: analyticsData.period === period ? '0 4px 15px rgba(235, 205, 170, 0.3)' : 'none',
                   }}
                 >
                   {periodLabels[period]}
@@ -2227,13 +2273,13 @@ function App() {
               transition={{ delay: 0.15 }}
               className="rounded-3xl p-6 mb-6"
               style={{
-                backgroundColor: '#442D1C',
-                boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                backgroundColor: '#2A2A2A',
+                boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
               }}
             >
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <p className="text-sm mb-1" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+                  <p className="text-sm mb-1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Spent {periodLabels[analyticsData.period]}
                   </p>
                   <motion.p
@@ -2241,24 +2287,24 @@ function App() {
                     initial={{ scale: 0.9 }}
                     animate={{ scale: 1 }}
                     className="text-4xl font-bold"
-                    style={{ color: '#E8D1A7' }}
+                    style={{ color: '#EBCDAA' }}
                   >
                     ${analyticsData.total.toFixed(2)}
                   </motion.p>
                 </div>
-                <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
-                  <ChartBar size={28} style={{ color: '#E8D1A7' }} />
+                <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                  <ChartBar size={28} style={{ color: '#EBCDAA' }} />
                 </div>
               </div>
 
               {/* Ledger */}
               <div>
-                <h3 className="text-sm mb-4" style={{ color: 'rgba(232, 209, 167, 0.6)' }}>
+                <h3 className="text-sm mb-4" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                   {periodLabels[analyticsData.period]}'s Transactions
                 </h3>
-                <div className="space-y-3 max-h-64 overflow-y-auto">
+                <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-minimal">
                   {analyticsData.transactions.length === 0 ? (
-                    <p className="text-center py-4" style={{ color: 'rgba(232, 209, 167, 0.4)' }}>
+                    <p className="text-center py-4" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
                       No transactions yet
                     </p>
                   ) : (
@@ -2276,17 +2322,17 @@ function App() {
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.03 }}
                           className="flex items-center justify-between py-2"
-                          style={{ color: '#E8D1A7' }}
+                          style={{ color: '#FFFFFF' }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(232, 209, 167, 0.1)' }}>
-                              <FinalIcon size={20} style={{ color: '#E8D1A7' }} />
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+                              <FinalIcon size={20} style={{ color: '#EBCDAA' }} />
                             </div>
                             <div>
                               <span className="text-sm font-medium">
                                 {transaction.description || transaction.category}
                               </span>
-                              <p className="text-xs" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+                              <p className="text-xs" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                                 {transaction.category}
                               </p>
                             </div>
@@ -2313,11 +2359,11 @@ function App() {
                   transition={{ delay: 0.25 }}
                   className="rounded-3xl p-6 mb-6"
                   style={{
-                    backgroundColor: '#f5e6cc',
-                    boxShadow: '0 8px 32px rgba(68, 45, 28, 0.08)',
+                    backgroundColor: '#2A2A2A',
+                    boxShadow: '0 8px 32px rgba(2, 2, 2, 0.08)',
                   }}
                 >
-                  <h3 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide mb-4" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                     Breakdown by Category
                   </h3>
 
@@ -2337,29 +2383,29 @@ function App() {
                           transition={{ delay: index * 0.05 }}
                           className="flex items-center gap-3"
                         >
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(68, 45, 28, 0.08)' }}>
-                            <FinalIcon size={20} style={{ color: '#442D1C' }} />
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}>
+                            <FinalIcon size={20} style={{ color: '#EBCDAA' }} />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm font-medium" style={{ color: '#442D1C' }}>
+                              <span className="text-sm font-medium" style={{ color: '#FFFFFF' }}>
                                 {item.category}
                               </span>
-                              <span className="text-sm font-semibold" style={{ color: '#442D1C' }}>
+                              <span className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
                                 ${item.amount.toFixed(2)}
                               </span>
                             </div>
-                            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(68, 45, 28, 0.1)' }}>
+                            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
                               <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${item.percentage}%` }}
                                 transition={{ duration: 0.5, delay: index * 0.05 }}
                                 className="h-full rounded-full"
-                                style={{ backgroundColor: '#84592B' }}
+                                style={{ backgroundColor: '#EBCDAA' }}
                               />
                             </div>
                           </div>
-                          <span className="text-xs w-10 text-right" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>
+                          <span className="text-xs w-10 text-right" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                             {item.percentage.toFixed(0)}%
                           </span>
                         </motion.div>
@@ -2383,21 +2429,21 @@ function App() {
                   transition={{ delay: 0.35 }}
                   className="rounded-3xl p-6"
                   style={{
-                    backgroundColor: '#442D1C',
-                    boxShadow: '0 8px 32px rgba(68, 45, 28, 0.15)',
+                    backgroundColor: '#020202',
+                    boxShadow: '0 8px 32px rgba(235, 205, 170, 0.15)',
                   }}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <InsightIcon size={20} style={{ color: '#E8D1A7' }} weight="regular" />
-                      <h3 className="text-sm" style={{ color: '#E8D1A7' }}>
+                      <InsightIcon size={20} style={{ color: '#EBCDAA' }} weight="regular" />
+                      <h3 className="text-sm" style={{ color: '#EBCDAA' }}>
                         {currentInsight.title}
                       </h3>
                     </div>
                     <button
                       onClick={rotateInsight}
                       className="p-2 rounded-full transition-colors"
-                      style={{ color: 'rgba(232, 209, 167, 0.6)' }}
+                      style={{ color: 'rgba(255, 255, 255, 0.6)' }}
                     >
                       <ArrowsClockwise size={18} />
                     </button>
@@ -2410,10 +2456,10 @@ function App() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                     >
-                      <p className="text-2xl font-bold mb-1" style={{ color: '#E8D1A7' }}>
+                      <p className="text-2xl font-bold mb-1" style={{ color: '#FFFFFF' }}>
                         {currentInsight.value}
                       </p>
-                      <p className="text-sm" style={{ color: 'rgba(232, 209, 167, 0.5)' }}>
+                      <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                         {currentInsight.subtitle}
                       </p>
                     </motion.div>
@@ -2425,18 +2471,22 @@ function App() {
         </motion.div>
 
         {/* Floating Navigation */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-2 rounded-full" style={{ backgroundColor: '#442D1C', boxShadow: '0 8px 32px rgba(68, 45, 28, 0.4)' }}>
+        <motion.div 
+          layoutId="floating-nav"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
+        >
           <button
             onClick={() => setCurrentView('home')}
             className="p-3 rounded-full transition-all duration-200"
-            style={{ color: '#E8D1A7' }}
+            style={{ color: '#FFFFFF' }}
           >
             <ArrowLeft size={24} weight="regular" />
           </button>
-          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'rgba(232, 209, 167, 0.2)' }} />
+          <div className="w-px h-6 lg:w-6 lg:h-px mx-1 lg:my-1" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }} />
           <button
             className="p-3 rounded-full transition-all duration-200"
-            style={{ backgroundColor: '#84592B', color: '#E8D1A7' }}
+            style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
           >
             <ChartBar size={24} weight="regular" />
           </button>
@@ -2445,19 +2495,19 @@ function App() {
               setCurrentView('achievements');
               setHasNewAchievements(false);
             }}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+            style={{ color: '#FFFFFF' }}
           >
             <Trophy size={24} weight="regular" />
           </button>
           <button
             onClick={() => setCurrentView('profile')}
-            className="p-3 rounded-full transition-all duration-200 hover:bg-[#84592B]/20"
-            style={{ color: '#E8D1A7' }}
+            className="p-3 rounded-full transition-all duration-200 hover:bg-white/10"
+            style={{ color: '#FFFFFF' }}
           >
             <User size={24} weight="regular" />
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -2471,7 +2521,7 @@ function App() {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 transition-colors duration-1000"
-      style={{ backgroundColor: '#E8D1A7' }}
+      style={{ backgroundColor: '#FFFFFF' }}
     >
       {showConfetti && (
         <Confetti
@@ -2479,11 +2529,57 @@ function App() {
           height={windowSize.height}
           recycle={false}
           numberOfPieces={500}
-          colors={['#E8D1A7', '#442D1C', '#84592B', '#743014']}
+          colors={['#EBCDAA', '#020202', '#4D4D4D', '#2A2A2A']}
         />
       )}
 
-      <div className="w-full max-w-md md:max-w-2xl lg:max-w-3xl">
+      {/* Step 0 Navigation - Outside AnimatePresence for immediate hide */}
+      <AnimatePresence>
+        {wizardStep === 0 && (
+          <motion.div
+            key="step-0-nav"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.15 }}
+            className="fixed left-6 top-[45%] -translate-y-1/2 flex flex-col items-center gap-1 px-2 py-3 rounded-full z-50"
+            style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
+          >
+            <button
+              onClick={() => {
+                setCurrentView('analytics');
+                fetchAnalytics('today');
+              }}
+              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+              style={{ color: '#FFFFFF' }}
+            >
+              <ChartBar size={24} weight="regular" />
+            </button>
+            <button
+              onClick={() => {
+                setCurrentView('achievements');
+                setHasNewAchievements(false);
+              }}
+              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A] relative"
+              style={{ color: '#FFFFFF' }}
+            >
+              <Trophy size={24} weight="regular" />
+              {hasNewAchievements && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#EBCDAA]" />
+              )}
+            </button>
+            <button
+              onClick={() => setCurrentView('profile')}
+              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+              style={{ color: '#FFFFFF' }}
+            >
+              <User size={24} weight="regular" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto">
         <AnimatePresence mode="wait">
           {/* Step 0: Resting State */}
           {wizardStep === 0 && (
@@ -2493,66 +2589,22 @@ function App() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex flex-col items-center justify-center min-h-[60vh]"
+              className="flex flex-col items-center justify-center min-h-[60vh] lg:min-h-screen w-full"
             >
 
-              {/* Start Tracking Button */}
+              {/* Start Tracking Button with pulsing glow */}
               <motion.button
                 onClick={handleStartTracking}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="w-44 h-44 md:w-52 md:h-52 lg:w-64 lg:h-64 rounded-full flex items-center justify-center text-lg md:text-xl font-semibold transition-all mb-16 md:mb-20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.92 }}
+                className="w-44 h-44 md:w-52 md:h-52 lg:w-64 lg:h-64 rounded-full flex items-center justify-center text-lg md:text-xl font-semibold animate-pulse-glow"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  color: '#442D1C',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.25), 0 4px 12px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#020202',
+                  color: '#FFFFFF',
                 }}
               >
                 Start Tracking
               </motion.button>
-
-              {/* Bottom Navigation - Floating Pill */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center gap-1 px-3 py-2 rounded-full"
-                style={{
-                  backgroundColor: '#442D1C',
-                  boxShadow: '0 8px 32px rgba(68, 45, 28, 0.3)',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentView('analytics');
-                    fetchAnalytics('today');
-                  }}
-                  className="p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
-                >
-                  <ChartBar size={24} weight="regular" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCurrentView('achievements');
-                    setHasNewAchievements(false);
-                  }}
-                  className="relative p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
-                >
-                  <Trophy size={24} weight="regular" />
-                  {hasNewAchievements && (
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentView('profile')}
-                  className="p-3 rounded-full transition-all duration-200 text-[#E8D1A7] hover:bg-[#84592B]"
-                >
-                  <User size={24} weight="regular" />
-                </button>
-              </motion.div>
             </motion.div>
           )}
 
@@ -2567,8 +2619,8 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-6 md:p-8 lg:p-10"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
                 <motion.h2
@@ -2576,7 +2628,7 @@ function App() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
                   className="text-xl md:text-2xl font-semibold mb-8 text-center"
-                  style={{ color: '#442D1C' }}
+                  style={{ color: '#4D4D4D' }}
                 >
                   How much?
                 </motion.h2>
@@ -2584,7 +2636,7 @@ function App() {
                 {/* Clean Number Input */}
                 <div className="flex items-center justify-center mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl md:text-5xl lg:text-6xl font-bold" style={{ color: '#442D1C' }}>$</span>
+                    <span className="text-4xl md:text-5xl lg:text-6xl font-bold" style={{ color: '#4D4D4D' }}>$</span>
                     <input
                       type="number"
                       autoFocus
@@ -2594,8 +2646,8 @@ function App() {
                       }
                       className="text-5xl md:text-6xl lg:text-7xl font-bold text-center border-none outline-none bg-transparent"
                       style={{
-                        color: '#442D1C',
-                        caretColor: '#84592B',
+                        color: '#4D4D4D',
+                        caretColor: '#EBCDAA',
                         width: '200px',
                       }}
                       placeholder="0"
@@ -2614,8 +2666,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -2628,9 +2680,8 @@ function App() {
                   disabled={!formData.amount}
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   style={{
-                    backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    backgroundColor: '#020202',
+                    color: '#FFFFFF',
                     opacity: formData.amount ? 1 : 0.5,
                   }}
                 >
@@ -2652,13 +2703,13 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
                 <div className="mb-8">
-                  <span className="text-sm font-medium" style={{ color: 'rgba(68, 45, 28, 0.6)' }}>Step 2 of 5</span>
-                  <h2 className="text-2xl md:text-3xl font-bold mt-2" style={{ color: '#442D1C' }}>What category?</h2>
+                  <span className="text-sm font-medium" style={{ color: 'rgba(77, 77, 77, 0.6)' }}>Step 2 of 5</span>
+                  <h2 className="text-2xl md:text-3xl font-bold mt-2" style={{ color: '#4D4D4D' }}>What category?</h2>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   {categories.map((cat, index) => {
@@ -2675,19 +2726,19 @@ function App() {
                         }}
                         className="p-4 rounded-2xl transition-all"
                         style={{
-                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
+                          backgroundColor: '#2A2A2A',
                           border: '2px solid transparent',
                           cursor: 'pointer',
                         }}
                         whileHover={{
-                          backgroundColor: 'rgba(68, 45, 28, 0.15)',
+                          backgroundColor: '#020202',
                           scale: 1.02,
                         }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex flex-col items-center justify-center gap-3">
-                          <IconComponent size={32} style={{ color: '#84592B' }} />
-                          <span className="text-sm font-medium text-center" style={{ color: '#442D1C' }}>
+                          <IconComponent size={32} style={{ color: '#EBCDAA' }} />
+                          <span className="text-sm font-medium text-center" style={{ color: '#FFFFFF' }}>
                             {cat.name}
                           </span>
                         </div>
@@ -2706,8 +2757,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -2720,9 +2771,8 @@ function App() {
                   disabled={!formData.category}
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   style={{
-                    backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    backgroundColor: '#020202',
+                    color: '#FFFFFF',
                     opacity: formData.category ? 1 : 0.5,
                   }}
                 >
@@ -2744,11 +2794,11 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#4D4D4D' }}>
                   How did you pay?
                 </h2>
                 <div className="flex flex-col gap-3">
@@ -2766,8 +2816,8 @@ function App() {
                       }}
                       className="py-4 px-6 rounded-2xl font-semibold text-lg transition-all"
                       style={{
-                        backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                        color: '#442D1C',
+                        backgroundColor: '#2A2A2A',
+                        color: '#FFFFFF',
                         border: '2px solid transparent',
                       }}
                     >
@@ -2786,8 +2836,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -2808,24 +2858,24 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#4D4D4D' }}>
                   Which card?
                 </h2>
                 {cards.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="mb-4" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>No cards added yet</p>
+                    <p className="mb-4" style={{ color: 'rgba(77, 77, 77, 0.5)' }}>No cards added yet</p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setCurrentView('profile')}
                       className="px-6 py-2.5 rounded-xl font-semibold"
                       style={{
-                        backgroundColor: '#84592B',
-                        color: '#E8D1A7',
+                        backgroundColor: '#EBCDAA',
+                        color: '#FFFFFF',
                       }}
                     >
                       Add Card in Profile
@@ -2851,12 +2901,12 @@ function App() {
                         }}
                         className="w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all flex items-center justify-between"
                         style={{
-                          backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                          color: '#442D1C',
+                          backgroundColor: '#2A2A2A',
+                          color: '#FFFFFF',
                         }}
                       >
                         <span>{card.nickname}</span>
-                        <span className="text-sm" style={{ color: 'rgba(68, 45, 28, 0.5)' }}>•••• {card.lastFour}</span>
+                        <span className="text-sm" style={{ color: '#EBCDAA' }}>•••• {card.lastFour}</span>
                       </motion.button>
                     ))}
                   </div>
@@ -2872,8 +2922,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -2894,11 +2944,11 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#4D4D4D' }}>
                   When was this?
                 </h2>
                 <div className="flex flex-col md:flex-row gap-3 mb-4">
@@ -2908,8 +2958,8 @@ function App() {
                     onClick={() => handleSetDate('today')}
                     className="flex-1 py-4 rounded-2xl font-semibold transition-all"
                     style={{
-                      backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                      color: '#442D1C',
+                      backgroundColor: '#2A2A2A',
+                      color: '#FFFFFF',
                     }}
                   >
                     Today
@@ -2920,8 +2970,8 @@ function App() {
                     onClick={() => handleSetDate('yesterday')}
                     className="flex-1 py-4 rounded-2xl font-semibold transition-all"
                     style={{
-                      backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                      color: '#442D1C',
+                      backgroundColor: '#2A2A2A',
+                      color: '#FFFFFF',
                     }}
                   >
                     Yesterday
@@ -2933,8 +2983,8 @@ function App() {
                   onClick={() => setShowCustomDate(!showCustomDate)}
                   className="w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2"
                   style={{
-                    backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                    color: '#442D1C',
+                    backgroundColor: '#2A2A2A',
+                    color: '#FFFFFF',
                   }}
                 >
                   <Calendar size={20} />
@@ -2962,8 +3012,8 @@ function App() {
                         }}
                         className="w-full px-4 py-2.5 border-none rounded-2xl focus:outline-none transition-all"
                         style={{
-                          backgroundColor: 'rgba(68, 45, 28, 0.15)',
-                          color: '#442D1C',
+                          backgroundColor: '#2A2A2A',
+                          color: '#FFFFFF',
                         }}
                         max={new Date().toISOString().split('T')[0]}
                       />
@@ -2981,8 +3031,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -3003,11 +3053,11 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
-                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#442D1C' }}>
+                <h2 className="font-bold mb-8 text-center text-2xl md:text-3xl" style={{ color: '#4D4D4D' }}>
                   What was this for?
                 </h2>
                 <motion.input
@@ -3019,8 +3069,8 @@ function App() {
                   whileFocus={{ scale: 1.02 }}
                   className="w-full px-4 md:px-6 py-3 md:py-4 border-none rounded-2xl mb-8 focus:outline-none transition-all text-lg md:text-xl"
                   style={{
-                    backgroundColor: 'rgba(68, 45, 28, 0.08)',
-                    color: '#442D1C',
+                    backgroundColor: '#2A2A2A',
+                    color: '#FFFFFF',
                   }}
                   placeholder="e.g., Morning coffee"
                 />
@@ -3035,8 +3085,8 @@ function App() {
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   <ArrowLeft size={20} weight="bold" />
@@ -3049,9 +3099,8 @@ function App() {
                   disabled={isSaving}
                   className="flex-1 px-6 py-3 rounded-full font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   style={{
-                    backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    backgroundColor: '#EBCDAA',
+                    color: '#FFFFFF',
                   }}
                 >
                   {isSaving ? (
@@ -3090,8 +3139,8 @@ function App() {
                 exit="exit"
                 className="rounded-3xl p-8 text-center"
                 style={{
-                  backgroundColor: '#E8D1A7',
-                  boxShadow: '0 12px 40px rgba(68, 45, 28, 0.15)',
+                  backgroundColor: '#FFFFFF',
+                  boxShadow: '0 12px 40px rgba(2, 2, 2, 0.15)',
                 }}
               >
               <motion.div
@@ -3104,17 +3153,17 @@ function App() {
                 }}
                 className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center"
                 style={{
-                  backgroundColor: 'rgba(132, 89, 43, 0.2)',
+                  backgroundColor: '#2A2A2A',
                 }}
               >
-                <Check size={48} style={{ color: '#84592B' }} weight="bold" />
+                <Check size={48} style={{ color: '#EBCDAA' }} weight="bold" />
               </motion.div>
               <motion.h2
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
                 className="text-2xl font-bold mb-2"
-                style={{ color: '#442D1C' }}
+                style={{ color: '#4D4D4D' }}
               >
                 Transaction Saved!
               </motion.h2>
@@ -3123,7 +3172,7 @@ function App() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
                 className="mb-8"
-                style={{ color: 'rgba(68, 45, 28, 0.6)' }}
+                style={{ color: 'rgba(77, 77, 77, 0.6)' }}
               >
                 ${formData.amount} spent on {formData.category}
               </motion.p>
@@ -3135,8 +3184,8 @@ function App() {
                   className="flex-1 py-2.5 rounded-xl font-semibold transition"
                   style={{
                     backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    color: '#4D4D4D',
+                    border: '2px solid #4D4D4D',
                   }}
                 >
                   Track Another
@@ -3147,9 +3196,8 @@ function App() {
                   onClick={handleDone}
                   className="flex-1 py-2.5 rounded-xl font-semibold transition"
                   style={{
-                    backgroundColor: 'transparent',
-                    color: '#84592B',
-                    border: '2px solid #84592B',
+                    backgroundColor: '#020202',
+                    color: '#FFFFFF',
                   }}
                 >
                   Done
@@ -3158,7 +3206,7 @@ function App() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full mt-4 py-2.5 border border-dashed border-[#aaa17a] rounded-xl text-[#aaa17a] font-semibold hover:bg-[#aaa17a]/10 transition flex items-center justify-center gap-2"
+                className="w-full mt-4 py-2.5 border border-dashed border-[#4D4D4D] rounded-xl text-[#4D4D4D] font-semibold hover:bg-[#4D4D4D]/10 transition flex items-center justify-center gap-2"
               >
                 <Camera size={20} />
                 Add Photo
@@ -3190,34 +3238,36 @@ function App() {
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0, rotate: 180 }}
                 transition={{ type: 'spring', duration: 0.8 }}
-                className="bg-white rounded-xl p-8 max-w-sm w-full text-center relative z-10"
+                className="rounded-3xl p-8 max-w-sm w-full text-center relative z-10"
+                style={{ backgroundColor: '#2A2A2A' }}
               >
                 {/* Badge icon with glow effect */}
                 <motion.div
                   animate={{
                     boxShadow: [
-                      '0 0 20px rgba(116, 48, 20, 0.3)',
-                      '0 0 40px rgba(116, 48, 20, 0.6)',
-                      '0 0 20px rgba(116, 48, 20, 0.3)',
+                      '0 0 20px rgba(235, 205, 170, 0.3)',
+                      '0 0 40px rgba(235, 205, 170, 0.6)',
+                      '0 0 20px rgba(235, 205, 170, 0.3)',
                     ],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-[#c5b98f] to-[#aaa17a] rounded-full flex items-center justify-center"
+                  className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: '#020202' }}
                 >
                   {React.createElement(getAchievementIcon(newlyUnlockedBadge.icon), {
                     size: 48,
-                    className: 'text-[#997c5c]',
+                    style: { color: '#EBCDAA' },
                     weight: 'fill',
                   })}
                 </motion.div>
 
-                <h2 className="text-[#555555] text-2xl font-bold mb-2">
+                <h2 className="text-2xl font-bold mb-2" style={{ color: '#FFFFFF' }}>
                   Achievement Unlocked!
                 </h2>
-                <p className="text-[#997c5c] text-xl font-semibold mb-2">
+                <p className="text-xl font-semibold mb-2" style={{ color: '#EBCDAA' }}>
                   {newlyUnlockedBadge.name}
                 </p>
-                <p className="text-[#aaa17a] text-sm mb-6">
+                <p className="text-sm mb-6" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
                   {newlyUnlockedBadge.description}
                 </p>
 
@@ -3228,7 +3278,8 @@ function App() {
                     setShowBadgeUnlock(false);
                     setNewlyUnlockedBadge(null);
                   }}
-                  className="w-full py-2.5 bg-[#997c5c] text-white rounded-xl font-semibold"
+                  className="w-full py-3 rounded-xl font-semibold"
+                  style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
                 >
                   Awesome!
                 </motion.button>
@@ -3244,16 +3295,16 @@ function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4"
+              className="fixed inset-0 z-40 flex items-center justify-center p-4"
+              style={{ backgroundColor: 'rgba(2, 2, 2, 0.8)' }}
             >
               <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: 'spring', duration: 0.5 }}
-                className={`rounded-xl p-5 max-w-sm w-full text-center ${
-                  budgetAlert.status === 'danger' ? 'bg-red-50' : 'bg-amber-50'
-                }`}
+                className="rounded-3xl p-6 max-w-sm w-full text-center"
+                style={{ backgroundColor: budgetAlert.status === 'danger' ? '#2A2A2A' : '#2A2A2A' }}
               >
                 <motion.div
                   animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
@@ -3263,13 +3314,13 @@ function App() {
                   {budgetAlert.status === 'danger' ? '🚨' : '⚠️'}
                 </motion.div>
 
-                <h3 className="text-xl font-bold text-[#555555] mb-2">
+                <h3 className="text-xl font-bold mb-2" style={{ color: '#FFFFFF' }}>
                   {budgetAlert.status === 'danger' ? 'Budget Exceeded!' : 'Budget Warning!'}
                 </h3>
 
-                <p className="text-[#aaa17a] mb-4">
-                  You've spent <strong>${budgetAlert.spent.toFixed(2)}</strong> on{' '}
-                  <strong>{budgetAlert.categoryName}</strong> this {budgetAlert.period}.
+                <p className="mb-4" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                  You've spent <strong style={{ color: '#EBCDAA' }}>${budgetAlert.spent.toFixed(2)}</strong> on{' '}
+                  <strong style={{ color: '#EBCDAA' }}>{budgetAlert.categoryName}</strong> this {budgetAlert.period}.
                   <br />
                   Budget: ${budgetAlert.budget.toFixed(2)}
                 </p>
@@ -3281,7 +3332,8 @@ function App() {
                     setShowBudgetAlert(false);
                     setBudgetAlert(null);
                   }}
-                  className="w-full py-2.5 bg-[#997c5c] text-white rounded-xl font-semibold"
+                  className="w-full py-3 rounded-xl font-semibold"
+                  style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
                 >
                   Got it!
                 </motion.button>

@@ -1,4 +1,4 @@
-/* Loading Component - OutGo Colors */
+/* Loading Component - High Contrast Colors */
 .loader {
   width: 80px;
   height: 50px;
@@ -10,14 +10,14 @@
   top: 0;
   padding: 0;
   margin: 0;
-  color: #84592B; /* Bronze */
+  color: var(--color-sand);
   animation: text_713 3.5s ease both infinite;
   font-size: .8rem;
   letter-spacing: 1px;
 }
 
 .load {
-  background-color: #743014; /* Rust */
+  background-color: var(--color-black);
   border-radius: 50px;
   display: block;
   height: 16px;
@@ -33,7 +33,7 @@
   content: "";
   width: 100%;
   height: 100%;
-  background-color: #E8D1A7; /* Cream */
+  background-color: var(--color-grey);
   border-radius: inherit;
   animation: loading2_713 3.5s ease both infinite;
 }
