@@ -69,14 +69,26 @@
   background: rgba(235, 205, 170, 0.5);
 }
 
-/* Achievements horizontal scrollbar - hidden but scrollable */
+/* Achievements horizontal scrollbar - subtle visible style */
 .scrollbar-achievements {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(235, 205, 170, 0.5) transparent;
   -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
 }
 .scrollbar-achievements::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  height: 6px;
+}
+.scrollbar-achievements::-webkit-scrollbar-track {
+  background: rgba(77, 77, 77, 0.1);
+  border-radius: 100px;
+  margin: 0 4px;
+}
+.scrollbar-achievements::-webkit-scrollbar-thumb {
+  background: rgba(235, 205, 170, 0.6);
+  border-radius: 100px;
+}
+.scrollbar-achievements::-webkit-scrollbar-thumb:hover {
+  background: rgba(235, 205, 170, 0.8);
 }
 
 /* Scroll snap utilities */

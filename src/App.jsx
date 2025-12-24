@@ -2538,11 +2538,11 @@ function App() {
         {wizardStep === 0 && (
           <motion.div
             key="step-0-nav"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.15 }}
-            className="fixed left-6 top-[45%] -translate-y-1/2 flex flex-col items-center gap-1 px-2 py-3 rounded-full z-50"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-6 lg:right-auto lg:top-[45%] lg:-translate-y-1/2 lg:mx-0 lg:bottom-auto flex lg:flex-col items-center justify-center gap-0.5 lg:gap-1 px-2 py-1.5 lg:px-2 lg:py-3 rounded-full z-50"
             style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
           >
             <button
@@ -2550,30 +2550,33 @@ function App() {
                 setCurrentView('analytics');
                 fetchAnalytics('today');
               }}
-              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+              className="p-2 lg:p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
               style={{ color: '#FFFFFF' }}
             >
-              <ChartBar size={24} weight="regular" />
+              <ChartBar size={20} className="lg:hidden" weight="regular" />
+              <ChartBar size={24} className="hidden lg:block" weight="regular" />
             </button>
             <button
               onClick={() => {
                 setCurrentView('achievements');
                 setHasNewAchievements(false);
               }}
-              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A] relative"
+              className="p-2 lg:p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A] relative"
               style={{ color: '#FFFFFF' }}
             >
-              <Trophy size={24} weight="regular" />
+              <Trophy size={20} className="lg:hidden" weight="regular" />
+              <Trophy size={24} className="hidden lg:block" weight="regular" />
               {hasNewAchievements && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#EBCDAA]" />
+                <span className="absolute top-0.5 right-0.5 lg:top-1 lg:right-1 w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-[#EBCDAA]" />
               )}
             </button>
             <button
               onClick={() => setCurrentView('profile')}
-              className="p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
+              className="p-2 lg:p-3 rounded-full transition-all duration-200 hover:bg-[#2A2A2A]"
               style={{ color: '#FFFFFF' }}
             >
-              <User size={24} weight="regular" />
+              <User size={20} className="lg:hidden" weight="regular" />
+              <User size={24} className="hidden lg:block" weight="regular" />
             </button>
           </motion.div>
         )}
