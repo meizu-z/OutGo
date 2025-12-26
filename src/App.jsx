@@ -55,7 +55,10 @@ import {
   ArrowsClockwise,
   TrendUp,
   ChartLine,
+  SpinnerGap,
 } from 'phosphor-react';
+import Auth from './components/Auth';
+import { auth } from './lib/supabase';
 
 // Category configuration
 const CATEGORIES = [
@@ -397,6 +400,10 @@ const saveTransaction = (transaction) => {
 };
 
 function App() {
+  // Authentication state
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const [currentView, setCurrentView] = useState('home');
   const [wizardStep, setWizardStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -406,6 +413,42 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+
+  // Check authentication on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { session } = await auth.getSession();
+        setUser(session?.user || null);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = auth.onAuthStateChange((event, session) => {
+      setUser(session?.user || null);
+      if (event === 'SIGNED_OUT') {
+        setCurrentView('home');
+        setWizardStep(0);
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  }, []);
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await auth.signOut();
+    setUser(null);
+    setCurrentView('home');
+    setWizardStep(0);
+  };
 
   // Form data
   const [formData, setFormData] = useState({
@@ -1286,6 +1329,32 @@ function App() {
   };
 
   // =============================================
+  // RENDER: Loading Screen
+  // =============================================
+  if (authLoading) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: '#FFFFFF' }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+        >
+          <SpinnerGap size={48} style={{ color: '#020202' }} weight="bold" />
+        </motion.div>
+      </div>
+    );
+  }
+
+  // =============================================
+  // RENDER: Auth Screen (Not logged in)
+  // =============================================
+  if (!user) {
+    return <Auth onAuthSuccess={(u) => setUser(u)} />;
+  }
+
+  // =============================================
   // RENDER: Achievements View
   // =============================================
   if (currentView === 'achievements') {
@@ -1719,16 +1788,19 @@ function App() {
               <h2 className="text-lg font-bold mb-4" style={{ color: '#FFFFFF' }}>Account</h2>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium" style={{ color: '#FFFFFF' }}>Guest User</p>
-                  <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Using LocalStorage</p>
+                  <p className="font-medium" style={{ color: '#FFFFFF' }}>{user?.email || 'Guest User'}</p>
+                  <p className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                    {user ? 'Synced with Supabase' : 'Using LocalStorage'}
+                  </p>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={handleSignOut}
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all"
                   style={{
                     backgroundColor: '#EBCDAA',
-                    color: '#FFFFFF',
+                    color: '#020202',
                     boxShadow: '0 4px 15px rgba(235, 205, 170, 0.3)',
                   }}
                 >
