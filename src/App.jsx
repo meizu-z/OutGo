@@ -58,7 +58,7 @@ import {
   SpinnerGap,
 } from 'phosphor-react';
 import Auth from './components/Auth';
-import { auth } from './lib/supabase';
+import { auth, transactions as transactionsAPI, paymentSources, spendingLimits } from './lib/supabase';
 
 // Category configuration
 const CATEGORIES = [
@@ -275,7 +275,7 @@ const ACHIEVEMENTS = [
   {
     id: 'big_spender',
     name: 'Big Spender',
-    description: 'Log a single expense over $100',
+    description: 'Log a single expense over ₱100',
     icon: 'ChartBar',
     difficulty: 'medium',
     category: 'milestone',
@@ -284,7 +284,7 @@ const ACHIEVEMENTS = [
   {
     id: 'mega_purchase',
     name: 'Mega Purchase',
-    description: 'Log a single expense over $500',
+    description: 'Log a single expense over ₱500',
     icon: 'ChartBar',
     difficulty: 'hard',
     category: 'milestone',
@@ -377,26 +377,23 @@ const slideVariants = {
   },
 };
 
-// LocalStorage helpers
-const STORAGE_KEY = 'outgo_transactions';
-
-const getTransactions = () => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
+// Data API helpers (Supabase)
+const getTransactions = async () => {
+  const { data, error } = await transactionsAPI.getAll();
+  if (error) {
+    console.error('Error fetching transactions:', error);
     return [];
   }
+  return data || [];
 };
 
-const saveTransaction = (transaction) => {
-  const transactions = getTransactions();
-  transactions.push({
-    ...transaction,
-    id: Date.now().toString(),
-    createdAt: new Date().toISOString(),
-  });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+const saveTransaction = async (transaction) => {
+  const { data, error } = await transactionsAPI.create(transaction);
+  if (error) {
+    console.error('Error saving transaction:', error);
+    throw error;
+  }
+  return data;
 };
 
 function App() {
@@ -441,6 +438,28 @@ function App() {
 
     return () => subscription?.unsubscribe();
   }, []);
+
+  // Load user data when authenticated
+  useEffect(() => {
+    if (user) {
+      // Load transactions and update analytics
+      const loadData = async () => {
+        try {
+          const txns = await getTransactions();
+          // Update insights
+          const updatedInsights = await getAllInsights();
+          setInsights(updatedInsights);
+          // Trigger analytics update if on analytics view
+          if (currentView === 'analytics' && analyticsData.period) {
+            await fetchAnalytics(analyticsData.period);
+          }
+        } catch (error) {
+          console.error('Error loading data:', error);
+        }
+      };
+      loadData();
+    }
+  }, [user]);
 
   // Handle sign out
   const handleSignOut = async () => {
@@ -567,6 +586,8 @@ function App() {
     const saved = localStorage.getItem('outgo_current_insight_index');
     return saved ? parseInt(saved, 10) : 0;
   });
+  const [insights, setInsights] = useState([]);
+
 
   // Update window size for confetti
   useEffect(() => {
@@ -577,7 +598,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const fetchAnalytics = (period) => {
+  const fetchAnalytics = async (period) => {
     const now = new Date();
     let startDate = new Date();
 
@@ -596,7 +617,7 @@ function App() {
         break;
     }
 
-    const allTransactions = getTransactions();
+    const allTransactions = await getTransactions();
     const filtered = allTransactions.filter(
       (t) => new Date(t.date) >= startDate
     );
@@ -628,7 +649,7 @@ function App() {
         percentage: grandTotal > 0 ? (amount / grandTotal) * 100 : 0,
       }))
       .sort((a, b) => b.amount - a.amount) // Sort by amount (highest first)
-      .filter((item) => item.amount > 0); // Remove $0 categories
+      .filter((item) => item.amount > 0); // Remove ₱0 categories
   };
 
   const calculateSpendingStatus = () => {
@@ -641,7 +662,8 @@ function App() {
       startDate.setMonth(now.getMonth() - 1);
     }
 
-    const allTransactions = getTransactions();
+    // Use analytics data if available (already loaded)
+    const allTransactions = analyticsData.transactions || [];
     const filtered = allTransactions.filter((t) => new Date(t.date) >= startDate);
     const totalSpent = filtered.reduce((sum, t) => sum + parseFloat(t.amount), 0);
     const percentage = (totalSpent / spendingLimit.amount) * 100;
@@ -760,8 +782,8 @@ function App() {
     return true;
   };
 
-  const checkAchievements = () => {
-    const transactions = getTransactions();
+  const checkAchievements = async () => {
+    const transactions = await getTransactions();
     const newlyUnlocked = [];
 
     ACHIEVEMENTS.forEach((achievement) => {
@@ -855,7 +877,7 @@ function App() {
   };
 
   // Budget Goals Helper Functions
-  const calculateBudgetStatus = (categoryName, budgetAmount, period) => {
+  const calculateBudgetStatus = async (categoryName, budgetAmount, period) => {
     const now = new Date();
     let startDate = new Date();
 
@@ -866,7 +888,7 @@ function App() {
       startDate.setMonth(now.getMonth() - 1);
     }
 
-    const transactions = getTransactions();
+    const transactions = await getTransactions();
     const categoryTransactions = transactions.filter(
       (t) => t.category === categoryName && new Date(t.date) >= startDate
     );
@@ -928,12 +950,12 @@ function App() {
     localStorage.setItem('outgo_budgets', JSON.stringify(updated));
   };
 
-  const checkBudgetAlerts = (transactionCategory) => {
+  const checkBudgetAlerts = async (transactionCategory) => {
     // Find budgets for this category
     const categoryBudgets = budgets.filter((b) => b.categoryName === transactionCategory);
 
-    categoryBudgets.forEach((budget) => {
-      const status = calculateBudgetStatus(budget.categoryName, budget.amount, budget.period);
+    for (const budget of categoryBudgets) {
+      const status = await calculateBudgetStatus(budget.categoryName, budget.amount, budget.period);
 
       // Show alert if warning or danger
       if (status.status === 'warning' || status.status === 'danger') {
@@ -946,12 +968,12 @@ function App() {
         });
         setShowBudgetAlert(true);
       }
-    });
+    }
   };
 
   // Spending Insights Functions
-  const getMostExpensiveDay = () => {
-    const transactions = getTransactions();
+  const getMostExpensiveDay = async () => {
+    const transactions = await getTransactions();
     const last30Days = transactions.filter(
       (t) => new Date(t.date) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     );
@@ -977,7 +999,7 @@ function App() {
     return {
       type: 'most_expensive_day',
       title: 'Biggest Splurge Day',
-      value: `$${mostExpensive[1].toFixed(2)}`,
+      value: `₱${mostExpensive[1].toFixed(2)}`,
       subtitle: new Date(mostExpensive[0]).toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'short',
@@ -987,8 +1009,8 @@ function App() {
     };
   };
 
-  const getWeekendVsWeekday = () => {
-    const transactions = getTransactions();
+  const getWeekendVsWeekday = async () => {
+    const transactions = await getTransactions();
     const last30Days = transactions.filter(
       (t) => new Date(t.date) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     );
@@ -1042,13 +1064,13 @@ function App() {
       type: 'weekend_vs_weekday',
       title: 'Weekend Warrior?',
       value: comparison,
-      subtitle: `Weekend: $${weekendTotal.toFixed(2)} | Weekday: $${weekdayTotal.toFixed(2)}`,
+      subtitle: `Weekend: ₱${weekendTotal.toFixed(2)} | Weekday: ₱${weekdayTotal.toFixed(2)}`,
       icon: 'CalendarBlank',
     };
   };
 
-  const getTopCategory = () => {
-    const transactions = getTransactions();
+  const getTopCategory = async () => {
+    const transactions = await getTransactions();
     const thisMonth = transactions.filter(
       (t) => new Date(t.date).getMonth() === new Date().getMonth()
     );
@@ -1074,13 +1096,13 @@ function App() {
       type: 'top_category',
       title: 'Top Category This Month',
       value: topCategory[0],
-      subtitle: `$${topCategory[1].toFixed(2)} spent`,
+      subtitle: `₱${topCategory[1].toFixed(2)} spent`,
       icon: 'TrendUp',
     };
   };
 
-  const getAverageTransaction = () => {
-    const transactions = getTransactions();
+  const getAverageTransaction = async () => {
+    const transactions = await getTransactions();
     const last30Days = transactions.filter(
       (t) => new Date(t.date) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     );
@@ -1101,7 +1123,7 @@ function App() {
     return {
       type: 'average_transaction',
       title: 'Average Purchase',
-      value: `$${average.toFixed(2)}`,
+      value: `₱${average.toFixed(2)}`,
       subtitle: `Based on ${last30Days.length} transactions`,
       icon: 'ChartLine',
     };
@@ -1129,19 +1151,20 @@ function App() {
     };
   };
 
-  const getAllInsights = () => {
-    return [
+  const getAllInsights = async () => {
+    return Promise.all([
       getMostExpensiveDay(),
       getWeekendVsWeekday(),
       getTopCategory(),
       getAverageTransaction(),
       getStreakInsight(),
-    ];
+    ]);
   };
 
-  const rotateInsight = () => {
-    const insights = getAllInsights();
-    const nextIndex = (currentInsightIndex + 1) % insights.length;
+  const rotateInsight = async () => {
+    const updatedInsights = await getAllInsights();
+    setInsights(updatedInsights);
+    const nextIndex = (currentInsightIndex + 1) % updatedInsights.length;
     setCurrentInsightIndex(nextIndex);
     localStorage.setItem('outgo_current_insight_index', nextIndex.toString());
   };
@@ -1163,33 +1186,39 @@ function App() {
   const handleSaveTransaction = async () => {
     setIsSaving(true);
 
-    // Simulate saving delay for better UX
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      // Save transaction to Supabase
+      await saveTransaction({
+        amount: parseFloat(formData.amount),
+        category: formData.category,
+        payment_source_id: formData.cardId || null,
+        date: formData.date,
+        description: formData.description,
+        has_photo: false,
+      });
 
-    saveTransaction({
-      amount: parseFloat(formData.amount),
-      category: formData.category,
-      paymentType: formData.paymentType,
-      cardId: formData.cardId,
-      cardNickname: formData.cardNickname,
-      date: formData.date,
-      description: formData.description,
-      hasPhoto: false,
-    });
+      // Update insights with new data
+      const updatedInsights = await getAllInsights();
+      setInsights(updatedInsights);
 
-    // Update streak and check for achievements
-    updateStreak();
-    checkAchievements();
+      // Update streak and check for achievements
+      updateStreak();
+      checkAchievements();
 
-    // Check budget alerts for this category
-    checkBudgetAlerts(formData.category);
+      // Check budget alerts for this category
+      await checkBudgetAlerts(formData.category);
 
-    setIsSaving(false);
-    setShowConfetti(true);
-    setWizardStep(7);
+      setShowConfetti(true);
+      setWizardStep(7);
 
-    // Stop confetti after 5 seconds
-    setTimeout(() => setShowConfetti(false), 5000);
+      // Stop confetti after 5 seconds
+      setTimeout(() => setShowConfetti(false), 5000);
+    } catch (error) {
+      console.error('Failed to save transaction:', error);
+      alert('Failed to save transaction. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleTrackAnother = () => {
@@ -1292,9 +1321,9 @@ function App() {
     setShowAddCategory(false);
   };
 
-  const handleDeleteCategory = (id) => {
+  const handleDeleteCategory = async (id) => {
     // Check if category has transactions
-    const transactions = getTransactions();
+    const transactions = await getTransactions();
     const category = categories.find((c) => c.id === id);
     if (!category) return;
 
@@ -1449,7 +1478,6 @@ function App() {
             backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 200px)',
           }}
         >
@@ -1695,7 +1723,7 @@ function App() {
         {/* Floating Navigation - Bottom on mobile, Left side vertical on desktop */}
         <motion.div 
           layoutId="floating-nav"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-8 lg:right-auto lg:top-0 lg:bottom-0 lg:my-auto lg:h-fit flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
           style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
         >
           <button
@@ -1769,7 +1797,6 @@ function App() {
             backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 200px)',
           }}
         >
@@ -1956,14 +1983,14 @@ function App() {
                   >
                     <div className="flex items-baseline justify-between mb-2">
                       <span className="text-sm" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Current Limit</span>
-                      <span className="text-2xl font-bold" style={{ color: '#FFFFFF' }}>${spendingLimit.amount}</span>
+                      <span className="text-2xl font-bold" style={{ color: '#FFFFFF' }}>₱{spendingLimit.amount}</span>
                     </div>
                     <p className="text-xs mb-4" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
                       Per {spendingLimit.period === 'week' ? 'Week' : 'Month'}
                     </p>
                     <div>
                       <div className="flex items-center justify-between mb-1 text-xs" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                        <span>${status.spent.toFixed(2)} spent</span>
+                        <span>₱{status.spent.toFixed(2)} spent</span>
                         <span>{status.percentage.toFixed(0)}%</span>
                       </div>
                       <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
@@ -2129,10 +2156,10 @@ function App() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => handleDeleteCategory(cat.id)}
-                        className="absolute -top-2 -right-2 p-1 rounded-full"
+                        className="absolute -top-2 -right-2 p-1.5 rounded-full z-10 cursor-pointer shadow-md"
                         style={{ backgroundColor: '#EBCDAA', color: '#020202' }}
                       >
-                        <X size={12} />
+                        <X size={12} weight="bold" />
                       </motion.button>
                     </motion.div>
                   );
@@ -2201,7 +2228,7 @@ function App() {
         {/* Floating Navigation */}
         <motion.div 
           layoutId="floating-nav"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-8 lg:right-auto lg:top-0 lg:bottom-0 lg:my-auto lg:h-fit flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
           style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
         >
           <button
@@ -2276,10 +2303,10 @@ function App() {
                 className="text-5xl font-bold"
                 style={{ color: '#EBCDAA' }}
               >
-                ${spendingStatus.spent.toFixed(2)}
+                ₱{spendingStatus.spent.toFixed(2)}
               </motion.span>
               <span className="text-lg" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
-                / ${spendingLimit.amount}
+                / ₱{spendingLimit.amount}
               </span>
             </div>
 
@@ -2313,7 +2340,6 @@ function App() {
             backgroundColor: '#FFFFFF',
             borderTopLeftRadius: '2rem',
             borderTopRightRadius: '2rem',
-            boxShadow: '0 -10px 40px rgba(2, 2, 2, 0.15)',
             minHeight: 'calc(100vh - 180px)',
           }}
         >
@@ -2361,7 +2387,7 @@ function App() {
                     className="text-4xl font-bold"
                     style={{ color: '#EBCDAA' }}
                   >
-                    ${analyticsData.total.toFixed(2)}
+                    ₱{analyticsData.total.toFixed(2)}
                   </motion.p>
                 </div>
                 <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
@@ -2410,7 +2436,7 @@ function App() {
                             </div>
                           </div>
                           <span className="font-semibold">
-                            ${parseFloat(transaction.amount).toFixed(2)}
+                            ₱{parseFloat(transaction.amount).toFixed(2)}
                           </span>
                         </motion.div>
                       );
@@ -2464,7 +2490,7 @@ function App() {
                                 {item.category}
                               </span>
                               <span className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
-                                ${item.amount.toFixed(2)}
+                                ₱{item.amount.toFixed(2)}
                               </span>
                             </div>
                             <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
@@ -2490,7 +2516,7 @@ function App() {
 
             {/* Insights Card */}
             {(() => {
-              const insights = getAllInsights();
+              if (insights.length === 0) return null;
               const currentInsight = insights[currentInsightIndex % insights.length];
               const InsightIcon = getInsightIcon(currentInsight.icon);
 
@@ -2513,7 +2539,7 @@ function App() {
                       </h3>
                     </div>
                     <button
-                      onClick={rotateInsight}
+                      onClick={() => rotateInsight()}
                       className="p-2 rounded-full transition-colors"
                       style={{ color: 'rgba(255, 255, 255, 0.6)' }}
                     >
@@ -2545,7 +2571,7 @@ function App() {
         {/* Floating Navigation */}
         <motion.div 
           layoutId="floating-nav"
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 lg:left-8 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0 lg:bottom-auto flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
+          className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-8 lg:right-auto lg:top-0 lg:bottom-0 lg:my-auto lg:h-fit flex lg:flex-col items-center gap-1 px-3 py-2 lg:px-2 lg:py-3 rounded-full z-50" 
           style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
         >
           <button
@@ -2610,11 +2636,8 @@ function App() {
         {wizardStep === 0 && (
           <motion.div
             key="step-0-nav"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-6 lg:right-auto lg:top-[45%] lg:-translate-y-1/2 lg:mx-0 lg:bottom-auto flex lg:flex-col items-center justify-center gap-0.5 lg:gap-1 px-2 py-1.5 lg:px-2 lg:py-3 rounded-full z-50"
+            layoutId="floating-nav"
+            className="fixed bottom-6 left-0 right-0 mx-auto w-fit lg:left-8 lg:right-auto lg:top-0 lg:bottom-0 lg:my-auto lg:h-fit flex lg:flex-col items-center justify-center gap-0.5 lg:gap-1 px-2 py-1.5 lg:px-2 lg:py-3 rounded-full z-50"
             style={{ backgroundColor: '#020202', boxShadow: '0 8px 32px rgba(235, 205, 170, 0.3)' }}
           >
             <button
@@ -2711,7 +2734,7 @@ function App() {
                 {/* Clean Number Input */}
                 <div className="flex items-center justify-center mb-8">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl md:text-5xl lg:text-6xl font-bold" style={{ color: '#4D4D4D' }}>$</span>
+                    <span className="text-4xl md:text-5xl lg:text-6xl font-bold" style={{ color: '#4D4D4D' }}>₱</span>
                     <input
                       type="number"
                       autoFocus
@@ -3249,7 +3272,7 @@ function App() {
                 className="mb-8"
                 style={{ color: 'rgba(77, 77, 77, 0.6)' }}
               >
-                ${formData.amount} spent on {formData.category}
+                ₱{formData.amount} spent on {formData.category}
               </motion.p>
               <div className="flex gap-4">
                 <motion.button
@@ -3394,10 +3417,10 @@ function App() {
                 </h3>
 
                 <p className="mb-4" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                  You've spent <strong style={{ color: '#EBCDAA' }}>${budgetAlert.spent.toFixed(2)}</strong> on{' '}
+                  You've spent <strong style={{ color: '#EBCDAA' }}>₱{budgetAlert.spent.toFixed(2)}</strong> on{' '}
                   <strong style={{ color: '#EBCDAA' }}>{budgetAlert.categoryName}</strong> this {budgetAlert.period}.
                   <br />
-                  Budget: ${budgetAlert.budget.toFixed(2)}
+                  Budget: ₱{budgetAlert.budget.toFixed(2)}
                 </p>
 
                 <motion.button

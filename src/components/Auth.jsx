@@ -42,7 +42,13 @@ const Auth = ({ onAuthSuccess }) => {
         }
 
         const { data, error } = await auth.signUp(email, password);
-        if (error) throw error;
+        if (error) {
+          // Better error messages
+          if (error.message.includes('invalid') || error.message.includes('email')) {
+            throw new Error('Please use a valid email address (e.g., yourname@gmail.com)');
+          }
+          throw error;
+        }
         
         setSuccess('Check your email to confirm your account!');
         setMode('login');
